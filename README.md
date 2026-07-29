@@ -1,62 +1,208 @@
-# Selva Praveen Portfolio
+# 🚨 ResQLearn
 
-![Portfolio Screenshot](./public/screenshot.png)
+### Learn. Prepare. Respond.
 
-[![Website](https://img.shields.io/badge/Portfolio-Online-brightgreen)](https://selva-33.vercel.app/)
-[![Next.js](https://img.shields.io/badge/Next.js-14-blue?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-4.9-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.3-blue?logo=tailwind-css)](https://tailwindcss.com/)
-[![Framer Motion](https://img.shields.io/badge/FramerMotion-3.13-purple?logo=framer)](https://www.framer.com/motion/)
-[![HeroUI](https://img.shields.io/badge/HeroUI-v2-orange)](https://heroui.com/)
-[![Tailwind Variants](https://img.shields.io/badge/TailwindVariants-1.0-pink)](https://tailwind-variants.org)
-[![Next Themes](https://img.shields.io/badge/NextThemes-1.2-blueviolet)](https://github.com/pacocoursey/next-themes)
+**ResQLearn** is a disaster preparedness and emergency response education mobile application designed for **schools and colleges**. It helps students and staff learn how to respond effectively during emergencies through educational content, interactive activities, emergency guidance, and preparedness resources.
 
-A modern, responsive portfolio showcasing my projects, skills, and contact information.
+## 📌 Project Overview
 
-## 🌐 Live Demo
-[https://selva-33.vercel.app/](https://selva-33.vercel.app/)
+During emergencies such as **earthquakes, floods, fires, cyclones, and other disasters**, knowing what to do can save lives.
 
-## 🛠️ Technologies Used
-- [Next.js 14](https://nextjs.org/docs/getting-started)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [HeroUI v2](https://heroui.com/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
+ResQLearn provides a simple and interactive platform to help students and educational institutions:
 
-## 📑 Sections
-- **Home** – Introduction and overview  
-- **About Me** – Personal background and interests  
-- **Projects** – Highlights of my development projects  
-- **Skills** – My technical skills and expertise  
-- **Contact Me** – LinkedIn, GitHub, Email  
+* 📚 Learn about different types of disasters
+* 🛡️ Understand safety and preparedness measures
+* 🚨 Learn emergency response procedures
+* 🧠 Test knowledge through quizzes
+* 📍 Access important emergency information
+* 📢 Receive alerts and safety instructions
+* 🏫 Improve disaster preparedness within educational institutions
 
-## 📂 Features
-- Fully responsive design for all devices  
-- Smooth scrolling navigation  
-- Interactive project showcase  
-- Light/Dark theme toggle (via `next-themes`)  
-- Contact form integrated with direct email links  
+## 🎯 Objectives
 
-## 🔗 Contact & Socials
-- **LinkedIn:** [Selva Praveen](https://www.linkedin.com/in/selvapraveen-s/)  
-- **GitHub:** [Selva-33](https://github.com/Selva-33)  
-- **Email:** selvapraveen@example.com  
+* Improve disaster awareness among students.
+* Teach practical emergency response procedures.
+* Encourage students to prepare before disasters occur.
+* Provide easy-to-understand safety education.
+* Help schools and colleges build a culture of preparedness.
+* Reduce panic and improve decision-making during emergencies.
 
-## 🚀 Getting Started
-To run this portfolio locally:
+## 👥 Users
+
+### 👨‍🎓 Students
+
+* Learn disaster preparedness and safety procedures.
+* Take quizzes and assessments.
+* View emergency instructions.
+* Access educational resources.
+* Track their learning progress.
+
+### 👨‍🏫 Teachers / Staff
+
+* Access disaster preparedness materials.
+* Guide students during safety training.
+* Monitor student participation and learning.
+
+### 🏫 Institution / Admin
+
+* Manage educational content.
+* Manage users and learning resources.
+* Monitor preparedness activities.
+* Share emergency announcements and alerts.
+
+## 🚨 Key Features
+
+### 📖 Disaster Education
+
+Learn about different disasters, their causes, risks, and safety measures.
+
+### 🛡️ Preparedness Guides
+
+Step-by-step guidance on what to do **before, during, and after** an emergency.
+
+### 🆘 Emergency Response
+
+Quick access to emergency procedures and important safety instructions.
+
+### 🧠 Interactive Quizzes
+
+Test your knowledge through disaster preparedness quizzes and assessments.
+
+### 📢 Emergency Alerts
+
+Provide important emergency notifications and safety announcements.
+
+### 📍 Emergency Information
+
+Access important emergency contacts, locations, and institutional safety information.
+
+### 📊 Learning Progress
+
+Students can track their learning progress and quiz performance.
+
+## 🛠️ Technology Stack
+
+> Update this section according to the technologies actually used in your project.
+
+### Mobile Application
+
+* React Native
+* JavaScript / TypeScript
+
+### Backend
+
+* Node.js
+* Express.js
+
+### Database
+
+* MongoDB
+
+### Development Tools
+
+* Git
+* GitHub
+* VS Code
+
+## 📂 Project Structure
+
+```text
+ResQLearn/
+│
+├── mobile/
+│   ├── src/
+│   ├── components/
+│   ├── screens/
+│   ├── navigation/
+│   └── ...
+│
+├── backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   └── server.js
+│
+├── README.md
+└── ...
+```
+
+## ⚙️ Installation
+
+### 1. Clone the Repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/Selva-33/portfolio.git
+git clone <your-repository-url>
+```
 
-# Navigate into the project directory
-cd portfolio
+### 2. Navigate to the Project
 
-# Install dependencies
+```bash
+cd ResQLearn
+```
+
+### 3. Install Dependencies
+
+For the mobile application:
+
+```bash
 npm install
+```
 
-# Start the development server
+For the backend:
+
+```bash
+cd backend
+npm install
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+```
+
+### 5. Start the Backend
+
+```bash
 npm run dev
+```
 
+### 6. Start the Mobile Application
+
+```bash
+npm start
+```
+
+Then run the application on an Android/iOS emulator or physical device.
+
+## 🔮 Future Enhancements
+
+* 🤖 AI-powered emergency guidance
+* 🌐 Multi-language support
+* 📍 Real-time disaster location tracking
+* 📡 Offline emergency resources
+* 🔔 Push notifications
+* 🗺️ Interactive evacuation maps
+* 🎮 Gamified disaster preparedness training
+* 🧑‍🚒 Integration with emergency services
+* 📊 Institution-level preparedness analytics
+
+## 🌍 Impact
+
+ResQLearn aims to create a generation of students who are not only aware of disasters but are **prepared to act correctly during emergencies**.
+
+> **Preparedness can turn panic into action.**
+
+## 👨‍💻 Project
+
+**ResQLearn**
+*Disaster Preparedness and Emergency Response Education System for Schools and Colleges*
+
+Built with ❤️ to promote **awareness, preparedness, and safety**.
+
+```
+```
