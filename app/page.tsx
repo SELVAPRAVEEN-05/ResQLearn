@@ -1,9 +1,10 @@
+import LoginPage from "./login/page";
+import WelcomePage from "./welocme/page";
+
 export default function Page() {
   return (
     <div>
-      <div>
-        <p>hello</p>
-      </div>
+      <WelcomePage />
     </div>
   );
 }

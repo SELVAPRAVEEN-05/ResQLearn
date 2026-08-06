@@ -38,14 +38,14 @@ export default function RootLayout({
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <Loader>
             <div
-              id="scroll-container"
-              className="h-[100dvh] w-screen overflow-y-scroll
-              [&::-webkit-scrollbar]:w-1.5
-              [&::-webkit-scrollbar-thumb]:rounded-full
-              [&::-webkit-scrollbar-track]:bg-[transparent]
-              [&::-webkit-scrollbar-thumb]:bg-primary"
+              // id="scroll-container"
+              // className="h-[100dvh] w-screen overflow-y-scroll
+              // [&::-webkit-scrollbar]:w-1.5
+              // [&::-webkit-scrollbar-thumb]:rounded-full
+              // [&::-webkit-scrollbar-track]:bg-[transparent]
+              // [&::-webkit-scrollbar-thumb]:bg-primary"
             >
-              <Navbar />
+              {/* <Navbar /> */}
               <main>{children}</main>
             </div>
           </Loader>
