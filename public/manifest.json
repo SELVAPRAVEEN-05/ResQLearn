@@ -1,18 +1,18 @@
 {
-  "name": "SafeGraph AI:",
-  "short_name": "SafeGraph AI:",
+  "name": "SafeGraph AI",
+  "short_name": "SafeGraph AI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "./images/logo.png",
+      "src": "./images/image.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./images/photo.png",
+      "src": "./images/image.png",
       "sizes": "512x512",
       "type": "image/png"
     }
