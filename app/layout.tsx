@@ -15,7 +15,7 @@ export const metadata: Metadata = {
    manifest: "/manifest.json",
   description: siteConfig.description,
   icons: {
-    icon: "https://img.freepik.com/premium-vector/sp-letter-logo-design-with-circle-shape-sp-circle-cube-shape-logo-design-sp-monogram-busine_629210-698.jpg",
+    icon: "/images/image.png",
   },
 };
 
@@ -35,7 +35,7 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <head  />
       <body className={clsx("font-sans m-0", fontSans.variable)}>
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <Loader>
             <div
               // id="scroll-container"

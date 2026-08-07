@@ -7,15 +7,26 @@ interface LoaderProps {
   children: React.ReactNode;
 }
 
+const COLORS = {
+  primary: "#10B981",
+  white: "#FFFFFF",
+  lightGray: "#F9FAFB",
+  gray: "#F3F4F6",
+  borderGray: "#E5E7EB",
+  darkGray: "#6B7280",
+  text: "#111827",
+  textSecondary: "#6B7280",
+};
+
 // Split text into characters for stagger animation
 const SplitText = ({ text }: { text: string }) => (
-  <span className="inline-flex overflow-hidden">
+  <span className="inline-flex overflow-hidden flex-wrap justify-center">
     {text.split("").map((char, i) => (
       <motion.span
         key={i}
         initial={{ y: "100%", opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: i * 0.05, duration: 0.5 }}
+        transition={{ delay: i * 0.04, duration: 0.5 }}
         className="inline-block"
       >
         {char === " " ? "\u00A0" : char}
@@ -40,100 +51,111 @@ export default function Loader({ children }: LoaderProps) {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-white dark:bg-black overflow-hidden"
+            className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden px-6"
+            style={{ backgroundColor: COLORS.white }}
           >
-            {/* Grain Overlay */}
-            <div className="pointer-events-none absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-
-            {/* Animated Gradient Background */}
-            {/* <div className="absolute inset-0">
+            {/* Ambient glow field */}
+            <div className="absolute inset-0">
               <motion.div
-                animate={{ scale: [1, 1.3, 1], rotate: [0, 360] }}
-                transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-                className="absolute w-[700px] h-[700px] bg-purple-500/30 rounded-full blur-3xl -top-60 -left-60"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.22, 0.12] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute w-[280px] h-[280px] sm:w-[500px] sm:h-[500px] rounded-full blur-3xl -top-24 -left-24 sm:-top-40 sm:-left-40"
+                style={{ backgroundColor: COLORS.primary }}
               />
-
               <motion.div
-                animate={{ scale: [1, 1.4, 1], rotate: [360, 0] }}
-                transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-                className="absolute w-[600px] h-[600px] bg-cyan-400/30 rounded-full blur-3xl bottom-0 right-0"
+                animate={{ scale: [1, 1.15, 1], opacity: [0.08, 0.16, 0.08] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute w-[240px] h-[240px] sm:w-[420px] sm:h-[420px] rounded-full blur-3xl bottom-0 right-0"
+                style={{ backgroundColor: COLORS.primary }}
               />
-            </div> */}
+            </div>
 
-            {/* Floating Lines (classic aesthetic) */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-10">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+            {/* Horizon line */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-20">
+              <div
+                className="w-full h-px"
+                style={{
+                  background: `linear-gradient(to right, transparent, ${COLORS.primary}, transparent)`,
+                }}
+              />
             </div>
 
             {/* Main Content */}
-            <div className="relative flex flex-col items-center gap-12">
-              {/* SVG Logo Draw Animation */}
+            <div className="relative flex flex-col items-center gap-6 sm:gap-10 w-full max-w-xs sm:max-w-sm">
+              {/* Mark: drawn-on check-shield */}
               <motion.svg
-                width="120"
-                height="120"
+                width="72"
+                height="72"
                 viewBox="0 0 100 100"
                 fill="none"
-                className="stroke-current text-black dark:text-white"
+                className="w-16 h-16 sm:w-24 sm:h-24"
               >
-                <motion.circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  strokeWidth="2"
+                <motion.path
+                  d="M50 8 L86 22 V50 C86 72 70 86 50 94 C30 86 14 72 14 50 V22 Z"
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                  stroke={COLORS.primary}
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
-                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  transition={{ duration: 1.4, ease: "easeInOut" }}
                 />
-                <motion.text
-                  x="50%"
-                  y="55%"
-                  textAnchor="middle"
-                  className="text-xl font-bold"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                >
-                  SP
-                </motion.text>
+                <motion.path
+                  d="M34 52 L45 63 L67 39"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  stroke={COLORS.primary}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 1.2 }}
+                />
               </motion.svg>
 
-              {/* Rotating Rings */}
-              <div className="relative w-40 h-40 flex items-center justify-center">
+              {/* Pulse rings */}
+              <div className="relative w-24 h-24 sm:w-36 sm:h-36 flex items-center justify-center -mt-2 -mb-2">
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-                  className="absolute inset-0 rounded-full border border-white/20"
+                  animate={{ scale: [1, 1.8], opacity: [0.5, 0] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
+                  className="absolute w-10 h-10 sm:w-16 sm:h-16 rounded-full border"
+                  style={{ borderColor: COLORS.primary }}
                 />
-
                 <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 10,
-                    ease: "linear",
-                  }}
-                  className="absolute inset-6 rounded-full border border-white/10"
+                  animate={{ scale: [1, 1.8], opacity: [0.5, 0] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeOut", delay: 1 }}
+                  className="absolute w-10 h-10 sm:w-16 sm:h-16 rounded-full border"
+                  style={{ borderColor: COLORS.primary }}
+                />
+                <div
+                  className="absolute w-2 h-2 rounded-full"
+                  style={{ backgroundColor: COLORS.primary }}
                 />
               </div>
 
-              {/* Animated Text (Premium) */}
-              <div className="text-center space-y-4">
-                <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-white">
-                  <SplitText text="Crafting Digital Experience" />
+              {/* Headline + status line */}
+              <div className="text-center space-y-2 sm:space-y-4 px-2">
+                <h1
+                  className="text-xl sm:text-3xl font-semibold tracking-tight leading-snug"
+                  style={{ color: COLORS.text }}
+                >
+                  <SplitText text="Getting things ready" />
                 </h1>
 
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: [0, 1, 0.5, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="text-sm text-gray-500 dark:text-gray-400"
+                  className="text-xs sm:text-sm tracking-widest uppercase"
+                  style={{ color: COLORS.textSecondary }}
                 >
-                  Design • Code • Motion
+                  Just a moment
                 </motion.p>
               </div>
 
-              {/* Elegant Progress Bar */}
-              <div className="w-72 h-[2px] bg-gray-200 dark:bg-gray-800 overflow-hidden relative">
+              {/* Progress bar */}
+              <div
+                className="w-full max-w-[220px] sm:w-72 h-[3px] overflow-hidden relative rounded-full"
+                style={{ backgroundColor: COLORS.borderGray }}
+              >
                 <motion.div
                   animate={{ x: ["-100%", "100%"] }}
                   transition={{
@@ -141,7 +163,8 @@ export default function Loader({ children }: LoaderProps) {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-transparent via-white to-transparent dark:via-white"
+                  className="absolute top-0 left-0 h-full w-1/2 rounded-full"
+                  style={{ backgroundColor: COLORS.primary }}
                 />
               </div>
             </div>

@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "PortFolio",
+  name: "SafeGraph AI",
   description: "Build beautiful websites",
   navItems: [
     { label: "Home", targetId: "home" },
