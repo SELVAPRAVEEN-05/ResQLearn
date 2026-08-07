@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+
 import { BookOpen, Network, TriangleAlert, Users } from "lucide-react";
 
 const FEATURES = [
