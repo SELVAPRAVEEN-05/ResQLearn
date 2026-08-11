@@ -11,7 +11,8 @@ const lessons = [
   { id: "recovery-aftermath", title: "Recovery & Aftermath", status: "locked" },
 ];
 
-export default function CourseDetailPage({ params }: { params: { slug: string } }) {
+export default function CourseDetailPage(props: { params: any }) {
+  const { params } = props;
   const inProgressLesson = lessons.find((l) => l.status === "in-progress");
 
   return (

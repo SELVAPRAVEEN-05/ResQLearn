@@ -8,7 +8,8 @@ const stats = [
   { label: "Time Taken", value: "5m 20s", icon: Timer, iconColor: "#6B7280" },
 ];
 
-export default function QuizResultPage({ params }: { params: { slug: string } }) {
+export default function QuizResultPage(props: { params: any }) {
+  const { params } = props;
   const scorePercent = 90;
   const circumference = 2 * Math.PI * 54;
   const dash = (scorePercent / 100) * circumference;

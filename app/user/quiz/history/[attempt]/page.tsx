@@ -37,8 +37,12 @@ const attemptDetails = {
   },
 };
 
-export default function QuizHistoryDetailPage({ params }: { params: { attempt: string } }) {
-  const detail = attemptDetails[params.attempt] ?? attemptDetails["flood-preparedness"];
+type AttemptKey = keyof typeof attemptDetails;
+
+export default function QuizHistoryDetailPage(props: { params: any }) {
+  const { params } = props;
+  const attemptKey = params.attempt as AttemptKey;
+  const detail = attemptDetails[attemptKey] ?? attemptDetails["flood-preparedness"];
 
   return (
     <section className="space-y-6">

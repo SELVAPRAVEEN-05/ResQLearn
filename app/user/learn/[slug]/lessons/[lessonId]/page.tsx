@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, XCircle, Mountain, Megaphone, Waves, Car, ArrowLeft, ArrowRight } from "lucide-react";
 
-export default function LessonPage({ params }: { params: { slug: string; lessonId: string } }) {
+export default function LessonPage(props: { params: any }) {
+  const { params } = props;
+
   return (
     <section className="space-y-6">
       {/* Breadcrumb */}

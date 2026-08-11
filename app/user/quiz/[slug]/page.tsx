@@ -19,7 +19,8 @@ const questions = [
   },
 ];
 
-export default function QuizInProgressPage({ params }: { params: { slug: string } }) {
+export default function QuizInProgressPage(props: { params: any }) {
+  const { params } = props;
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
