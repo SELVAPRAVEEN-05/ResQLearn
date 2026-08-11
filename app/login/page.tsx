@@ -35,13 +35,21 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
 
-  function updateField<K extends keyof LoginFormData>(key: K, value: LoginFormData[K]) {
+  type ErrorField = keyof LoginFormErrors;
+
+  function updateField<K extends keyof LoginFormData>(
+    key: K,
+    value: LoginFormData[K],
+  ) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
+
+    if (key === "email" || key === "password") {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[key as ErrorField];
+        return next;
+      });
+    }
   }
 
   function validate(): boolean {

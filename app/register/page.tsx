@@ -39,15 +39,12 @@ const FEATURES = [
   "Guided emergency response training",
 ];
 
-const YEAR_OPTIONS = ["First Year", "Second Year", "Third Year", "Fourth Year"];
 
 const INITIAL_FORM: RegisterFormData = {
   fullName: "",
   email: "",
   institution: "",
   department: "",
-  yearOfStudy: "",
-  studentId: "",
   password: "",
   confirmPassword: "",
   agreeToTerms: false,
@@ -60,20 +57,36 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
 
-  function update<K extends keyof RegisterFormData>(
-    key: K,
-    value: RegisterFormData[K],
+  type ErrorField = keyof RegisterFormData;
+  
+
+function update<K extends keyof RegisterFormData>(
+  key: K,
+  value: RegisterFormData[K],
+) {
+  setForm((prev) => ({ ...prev, [key]: value }));
+
+  if (
+    key === "fullName" ||
+    key === "email" ||
+    key === "institution" ||
+    key === "department" ||
+    key === "password" ||
+    key === "confirmPassword" ||
+    key === "agreeToTerms"
   ) {
-    setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => {
       const next = { ...prev };
       delete next[key];
+
       if (key === "password") {
         delete next.confirmPassword;
       }
+
       return next;
     });
   }
+}
 
   function validate(): boolean {
     const nextErrors: RegisterFormErrors = {};
@@ -92,9 +105,6 @@ export default function RegisterPage() {
 
     if (!isRequired(form.department))
       nextErrors.department = "Department is required.";
-
-    if (!form.yearOfStudy)
-      nextErrors.yearOfStudy = "Select your year of study.";
 
     if (!isRequired(form.password)) {
       nextErrors.password = "Password is required.";
@@ -197,31 +207,8 @@ export default function RegisterPage() {
               error={errors.department}
               onChange={(e) => update("department", e.target.value)}
             />
-
-            <SelectField
-              label="Year of Study"
-              name="yearOfStudy"
-              placeholder="Select year"
-              options={YEAR_OPTIONS}
-              value={form.yearOfStudy}
-              error={errors.yearOfStudy}
-              onChange={(e) =>
-                update(
-                  "yearOfStudy",
-                  e.target.value as RegisterFormData["yearOfStudy"],
-                )
-              }
-            />
           </div>
 
-          <Input
-            label="Student ID"
-            name="studentId"
-            placeholder="Optional"
-            icon={<BadgeCheck size={18} strokeWidth={1.75} />}
-            value={form.studentId}
-            onChange={(e) => update("studentId", e.target.value)}
-          />
 
           <PasswordInput
             label="Password"
