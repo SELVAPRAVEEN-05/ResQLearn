@@ -36,7 +36,7 @@ export default function RootLayout({
       <head  />
       <body className={clsx("font-sans m-0", fontSans.variable)}>
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <Loader>
+          {/* <Loader> */}
             <div
               // id="scroll-container"
               // className="h-[100dvh] w-screen overflow-y-scroll
@@ -48,7 +48,7 @@ export default function RootLayout({
               {/* <Navbar /> */}
               <main>{children}</main>
             </div>
-          </Loader>
+          {/* </Loader> */}
         </Providers>
       </body>
     </html>

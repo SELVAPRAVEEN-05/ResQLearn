@@ -29,6 +29,7 @@ import {
     UserPlus,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 const FEATURES = [
@@ -53,6 +54,7 @@ const INITIAL_FORM: RegisterFormData = {
 };
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [form, setForm] = useState<RegisterFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -63,6 +65,14 @@ export default function RegisterPage() {
     value: RegisterFormData[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      if (key === "password") {
+        delete next.confirmPassword;
+      }
+      return next;
+    });
   }
 
   function validate(): boolean {
@@ -123,6 +133,7 @@ export default function RegisterPage() {
         type: "success",
         message: "Student account created. You can now sign in.",
       });
+      router.push("/user");
     }, 1400);
   }
 

@@ -12,6 +12,7 @@ import { isRequired, isValidEmail } from "@/lib/validation";
 import type { LoginFormData, LoginFormErrors, ToastState } from "@/types/auth";
 import { LogIn, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 const FEATURES = [
@@ -28,10 +29,20 @@ const INITIAL_FORM: LoginFormData = {
 };
 
 export default function LoginPage() {
+  const router = useRouter();
   const [form, setForm] = useState<LoginFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  function updateField<K extends keyof LoginFormData>(key: K, value: LoginFormData[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
 
   function validate(): boolean {
     const nextErrors: LoginFormErrors = {};
@@ -61,6 +72,7 @@ export default function LoginPage() {
         type: "success",
         message: "Signed in successfully. Welcome back!",
       });
+      router.push("/admin");
     }, 1200);
   }
 
@@ -92,7 +104,7 @@ export default function LoginPage() {
             icon={<Mail size={18} strokeWidth={1.75} />}
             value={form.email}
             error={errors.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            onChange={(e) => updateField("email", e.target.value)}
           />
 
           <PasswordInput
@@ -102,7 +114,7 @@ export default function LoginPage() {
             placeholder="Enter your password"
             value={form.password}
             error={errors.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            onChange={(e) => updateField("password", e.target.value)}
           />
 
           <div className="flex items-center justify-between">
