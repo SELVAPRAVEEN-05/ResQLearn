@@ -4,6 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { Bell, ShieldCheck, ArrowLeft, Home, BookOpen, FileQuestion, Bot, User, Settings } from "lucide-react";
 import Link from "next/link";
 
+import { MockDataProvider } from "@/contexts/MockDataContext";
+
 const navItems = [
   { label: "Home", href: "/user/dashboard", icon: Home },
   { label: "Learn", href: "/user/learn", icon: BookOpen },
@@ -23,7 +25,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const isProfile = pathname.startsWith("/user/profile");
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#111827]">
+    <MockDataProvider>
+      <div className="min-h-screen bg-[#F9FAFB] text-[#111827]">
       {!hideHeader && (
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#E5E7EB] bg-white px-4 py-3">
           <div className="flex items-center gap-2">
@@ -67,5 +70,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         </div>
       </nav>
     </div>
+    </MockDataProvider>
   );
 }

@@ -1,22 +1,35 @@
+"use client";
+
 import Link from "next/link";
-import { CheckCircle2, PlayCircle, Lock, Play } from "lucide-react";
+import { CheckCircle2, PlayCircle, Lock, Play, ArrowLeft } from "lucide-react";
+import { useMockData } from "@/contexts/MockDataContext";
+import { useRouter } from "next/navigation";
+import { use } from "react";
 
-const lessons = [
-  { id: "intro-to-floods", title: "Introduction to Floods", status: "completed" },
-  { id: "causes-warning-signs", title: "Causes & Warning Signs", status: "completed" },
-  { id: "preparing-your-home", title: "Preparing Your Home", status: "completed" },
-  { id: "emergency-kit-checklist", title: "Emergency Kit Checklist", status: "completed" },
-  { id: "during-a-flood", title: "What To Do During a Flood", status: "in-progress" },
-  { id: "evacuation-safety", title: "Evacuation & Safety", status: "locked" },
-  { id: "recovery-aftermath", title: "Recovery & Aftermath", status: "locked" },
-];
+export default function CourseDetailPage(props: { params: Promise<{ slug: string }> }) {
+  const params = use(props.params);
+  const { courses } = useMockData();
+  const router = useRouter();
+  
+  const course = courses.find(c => c.slug === params.slug);
 
-export default function CourseDetailPage(props: { params: any }) {
-  const { params } = props;
-  const inProgressLesson = lessons.find((l) => l.status === "in-progress");
+  if (!course) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
+        <p className="text-[#6B7280]">Course not found.</p>
+        <button onClick={() => router.back()} className="text-[#10B981] font-semibold flex items-center gap-2">
+          <ArrowLeft size={16} /> Go Back
+        </button>
+      </div>
+    );
+  }
+
+  const inProgressLesson = course.lessons.find((l) => l.status === "in-progress") || course.lessons.find((l) => l.status === "locked");
+  const firstLockedLesson = course.lessons.find((l) => l.status === "locked");
+  const actionLesson = inProgressLesson || firstLockedLesson || course.lessons[course.lessons.length - 1]; // Fallback to last if all completed
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 animate-[fadeIn_0.5s_ease-out]">
       {/* Hero */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#D1FAE5] to-[#A7F3D0]">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
@@ -24,10 +37,9 @@ export default function CourseDetailPage(props: { params: any }) {
           <span className="mb-2 w-fit rounded-full bg-[#10B981] px-3 py-1 text-xs font-semibold text-white">
             Course
           </span>
-          <h1 className="text-xl font-bold text-white">Flood Preparedness</h1>
+          <h1 className="text-xl font-bold text-white">{course.title}</h1>
           <p className="mt-1 text-sm leading-5 text-white/90">
-            This course covers essential steps for before, during, and after a flood. Verified by disaster
-            management experts.
+            {course.description}
           </p>
         </div>
       </div>
@@ -36,10 +48,10 @@ export default function CourseDetailPage(props: { params: any }) {
       <div className="rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#6B7280]">Course Progress</p>
-          <p className="text-xl font-bold text-[#10B981]">72%</p>
+          <p className="text-xl font-bold text-[#10B981]">{course.progress}%</p>
         </div>
         <div className="mt-3 h-2 rounded-full bg-[#F3F4F6]">
-          <div className="h-2 rounded-full bg-[#10B981]" style={{ width: "72%" }} />
+          <div className="h-2 rounded-full bg-[#10B981]" style={{ width: `${course.progress}%` }} />
         </div>
       </div>
 
@@ -47,9 +59,11 @@ export default function CourseDetailPage(props: { params: any }) {
       <div>
         <h2 className="text-lg font-bold text-[#111827]">Lessons</h2>
         <div className="mt-3 divide-y divide-[#E5E7EB] rounded-3xl border border-[#E5E7EB] bg-white shadow-sm">
-          {lessons.map((lesson, i) => {
+          {course.lessons.map((lesson, i) => {
             const locked = lesson.status === "locked";
             const inProgress = lesson.status === "in-progress";
+            const completed = lesson.status === "completed";
+            
             const content = (
               <div
                 className={
@@ -58,7 +72,7 @@ export default function CourseDetailPage(props: { params: any }) {
                     : "flex items-center gap-3 p-4"
                 }
               >
-                {lesson.status === "completed" && (
+                {completed && (
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white">
                     <CheckCircle2 size={16} />
                   </span>
@@ -90,18 +104,18 @@ export default function CourseDetailPage(props: { params: any }) {
                       ? "text-xs text-[#9CA3AF]"
                       : "text-xs text-[#6B7280]"
                   }>
-                    {lesson.status === "completed" ? "Completed" : inProgress ? "In Progress" : "Locked"}
+                    {completed ? "Completed" : inProgress ? "In Progress" : "Locked"}
                   </p>
                 </div>
               </div>
             );
 
             return locked ? (
-              <div key={lesson.id} className="cursor-not-allowed">
+              <div key={lesson.id} className="cursor-not-allowed opacity-60">
                 {content}
               </div>
             ) : (
-              <Link key={lesson.id} href={`/user/learn/${params.slug}/lessons/${lesson.id}`}>
+              <Link key={lesson.id} href={`/user/learn/${course.slug}/lessons/${lesson.id}`}>
                 {content}
               </Link>
             );
@@ -109,13 +123,18 @@ export default function CourseDetailPage(props: { params: any }) {
         </div>
       </div>
 
-      {inProgressLesson && (
+      {actionLesson && course.progress < 100 && (
         <Link
-          href={`/user/learn/${params.slug}/lessons/${inProgressLesson.id}`}
+          href={`/user/learn/${course.slug}/lessons/${actionLesson.id}`}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#10B981] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#0E9F72]"
         >
-          <Play size={16} /> Continue Learning
+          <Play size={16} /> {course.progress > 0 ? "Continue Learning" : "Start Course"}
         </Link>
+      )}
+      {course.progress === 100 && (
+        <div className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#10B981] bg-[#ECFDF5] px-4 py-3 text-sm font-semibold text-[#10B981]">
+          <CheckCircle2 size={16} /> Course Completed
+        </div>
       )}
     </section>
   );

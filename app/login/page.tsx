@@ -56,8 +56,8 @@ export default function LoginPage() {
     const nextErrors: LoginFormErrors = {};
 
     if (!isRequired(form.email)) {
-      nextErrors.email = "Email address is required.";
-    } else if (!isValidEmail(form.email)) {
+      nextErrors.email = "Email address or username is required.";
+    } else if (form.email !== "admin" && !isValidEmail(form.email)) {
       nextErrors.email = "Enter a valid email address.";
     }
 
@@ -80,7 +80,13 @@ export default function LoginPage() {
         type: "success",
         message: "Signed in successfully. Welcome back!",
       });
-      router.push("/admin");
+      if (form.email === "admin" && form.password === "admin123") {
+        document.cookie = "role=admin; path=/";
+        router.push("/admin");
+      } else {
+        document.cookie = "role=student; path=/";
+        router.push("/user/dashboard");
+      }
     }, 1200);
   }
 
@@ -104,11 +110,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
           <Input
-            label="Email Address"
-            type="email"
+            label="Email or Username"
+            type="text"
             name="email"
             autoComplete="email"
-            placeholder="you@university.edu"
+            placeholder="you@university.edu or admin"
             icon={<Mail size={18} strokeWidth={1.75} />}
             value={form.email}
             error={errors.email}
