@@ -15,7 +15,7 @@ export default function EditProfilePage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({ name, email, avatar });
+    updateProfile(name, email, avatar);
     router.push("/user/profile");
   };
 
