@@ -1,0 +1,284 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  student
+  admin
+}
+
+enum DisasterType {
+  Flood
+  Fire
+  Cyclone
+  Heatwave
+  Earthquake
+  Landslide
+  Drought
+  Tsunami
+  Other
+}
+
+enum Difficulty {
+  Beginner
+  Intermediate
+  Advanced
+}
+
+enum MaterialType {
+  PDF
+  VIDEO
+  WEBSITE
+  ARTICLE
+  IMAGE
+  DOCUMENT
+  EXTERNAL_RESOURCE
+}
+
+enum CourseStatus {
+  locked
+  in_progress @map("in-progress")
+  completed
+}
+
+model User {
+  id                Int                  @id @default(autoincrement())
+  name              String               @db.VarChar(255)
+  email             String               @unique @db.VarChar(255)
+  passwordHash      String               @map("password_hash") @db.VarChar(255)
+  role              Role                 @default(student)
+  institution       String?              @db.VarChar(255)
+  department        String?              @db.VarChar(255)
+  yearOfStudy       String?              @map("year_of_study") @db.VarChar(50)
+  status            String               @default("Active") @db.VarChar(50)
+  preparednessScore Int                  @default(0) @map("preparedness_score")
+  certificates      Int                  @default(0)
+  avatar            String?              @db.VarChar(255)
+  createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  courseProgress    UserCourseProgress[]
+  lessonProgress    UserLessonProgress[]
+  materialProgress  UserMaterialProgress[]
+  quizAttempts      QuizAttempt[]
+  alertReads        UserAlertRead[]
+  chatMessages      ChatMessage[]
+
+  @@map("resq_users")
+  @@index([email])
+}
+
+model Course {
+  id                Int                  @id @default(autoincrement())
+  slug              String               @unique @db.VarChar(100)
+  title             String               @db.VarChar(255)
+  description       String               @db.Text
+  disasterType      String               @default("Flood") @map("category") @db.VarChar(50)
+  thumbnail         String?              @db.Text
+  difficulty        String               @default("Beginner") @db.VarChar(50)
+  estimatedDuration String               @default("30 min") @map("duration") @db.VarChar(50)
+  published         Boolean              @default(false) @map("is_published")
+  iconName          String               @default("Droplet") @map("icon_name") @db.VarChar(50)
+  createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  lessons           Lesson[]
+  userProgress      UserCourseProgress[]
+
+  @@map("resq_courses")
+  @@index([slug])
+  @@index([disasterType])
+}
+
+model Lesson {
+  id          Int                  @id @default(autoincrement())
+  lessonId    String               @map("lesson_id") @db.VarChar(100)
+  courseId    Int                  @map("course_id")
+  title       String               @db.VarChar(255)
+  description String?              @db.Text
+  content     String               @db.Text
+  type        String               @default("document") @db.VarChar(50)
+  order       Int                  @default(0) @map("order_index")
+  published   Boolean              @default(true) @map("is_published")
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  course      Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  materials   Material[]
+  progress    UserLessonProgress[]
+
+  @@unique([courseId, lessonId])
+  @@map("resq_lessons")
+  @@index([courseId])
+  @@index([order])
+}
+
+model Material {
+  id          Int          @id @default(autoincrement())
+  lessonId    Int          @map("lesson_id")
+  title       String       @db.VarChar(255)
+  description String?      @db.Text
+  type        MaterialType @default(DOCUMENT)
+  url         String       @db.Text
+  order       Int          @default(0) @map("order_index")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress    UserMaterialProgress[]
+
+  @@map("resq_materials")
+  @@index([lessonId])
+  @@index([order])
+}
+
+model UserCourseProgress {
+  id                  Int          @id @default(autoincrement())
+  userId              Int          @map("user_id")
+  courseId            Int          @map("course_id")
+  progress            Int          @default(0) @map("progress_percent")
+  status              String       @default("in-progress") @db.VarChar(50)
+  completed           Boolean      @default(false)
+  completedLessonIds  Json         @default("[]") @map("completed_lesson_ids")
+  lastAccessedLessonId String?     @map("last_accessed_lesson_id") @db.VarChar(100)
+  startedAt           DateTime     @default(now()) @map("started_at") @db.Timestamptz
+  completedAt         DateTime?    @map("completed_at") @db.Timestamptz
+  updatedAt           DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course              Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("resq_user_course_progress")
+  @@index([userId])
+  @@index([courseId])
+}
+
+model UserLessonProgress {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  lessonId    Int       @map("lesson_id")
+  completed   Boolean   @default(false)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("resq_user_lesson_progress")
+  @@index([userId])
+  @@index([lessonId])
+}
+
+model UserMaterialProgress {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @map("user_id")
+  materialId      Int       @map("material_id")
+  completed       Boolean   @default(false)
+  progressPercent Int       @default(0) @map("progress_percent")
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  material        Material  @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, materialId])
+  @@map("resq_user_material_progress")
+  @@index([userId])
+  @@index([materialId])
+}
+
+model Quiz {
+  id          Int            @id @default(autoincrement())
+  slug        String         @unique @db.VarChar(100)
+  title       String         @db.VarChar(255)
+  category    String         @db.VarChar(50)
+  difficulty  String         @db.VarChar(50)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz
+
+  questions   QuizQuestion[]
+  attempts    QuizAttempt[]
+
+  @@map("resq_quizzes")
+  @@index([slug])
+}
+
+model QuizQuestion {
+  id                 Int      @id @default(autoincrement())
+  questionId         String   @map("question_id") @db.VarChar(100)
+  quizId             Int      @map("quiz_id")
+  text               String   @db.Text
+  options            Json
+  correctAnswerIndex Int      @map("correct_answer_index")
+  explanation        String   @db.Text
+  orderIndex         Int      @default(0) @map("order_index")
+
+  quiz               Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, questionId])
+  @@map("resq_quiz_questions")
+  @@index([quizId])
+}
+
+model QuizAttempt {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  quizId    Int      @map("quiz_id")
+  score     Int
+  total     Int
+  passed    Boolean  @default(false)
+  answers   Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@map("resq_quiz_attempts")
+  @@index([userId])
+}
+
+model Alert {
+  id        Int             @id @default(autoincrement())
+  alertId   String          @unique @map("alert_id") @db.VarChar(100)
+  title     String          @db.VarChar(255)
+  message   String          @db.Text
+  severity  String          @db.VarChar(50)
+  isActive  Boolean         @default(true) @map("is_active")
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  reads     UserAlertRead[]
+
+  @@map("resq_alerts")
+  @@index([isActive])
+}
+
+model UserAlertRead {
+  userId Int      @map("user_id")
+  alertId Int     @map("alert_id")
+  readAt DateTime @default(now()) @map("read_at") @db.Timestamptz
+
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert  Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+
+  @@id([userId, alertId])
+  @@map("resq_user_alert_reads")
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  sender    String   @db.VarChar(20)
+  message   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resq_chat_messages")
+  @@index([userId])
+}

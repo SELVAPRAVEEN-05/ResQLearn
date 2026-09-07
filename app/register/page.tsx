@@ -126,7 +126,7 @@ function update<K extends keyof RegisterFormData>(
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!validate()) {
       setToast({
@@ -137,14 +137,43 @@ function update<K extends keyof RegisterFormData>(
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: form.fullName,
+          email: form.email,
+          password: form.password,
+          institution: form.institution,
+          department: form.department,
+          yearOfStudy: form.yearOfStudy || "",
+        }),
+      });
+
+      const data = await res.json();
       setLoading(false);
+
+      if (!res.ok) {
+        setToast({
+          type: "error",
+          message: data.error || "Failed to create account.",
+        });
+        return;
+      }
+
       setToast({
         type: "success",
-        message: "Student account created. You can now sign in.",
+        message: "Student account created successfully! Welcome.",
       });
-      router.push("/user");
-    }, 1400);
+      router.push("/user/dashboard");
+    } catch (err) {
+      setLoading(false);
+      setToast({
+        type: "error",
+        message: "Network error occurred while registering.",
+      });
+    }
   }
 
   return (

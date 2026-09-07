@@ -69,25 +69,46 @@ export default function LoginPage() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!validate()) return;
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+
+      const data = await res.json();
       setLoading(false);
+
+      if (!res.ok) {
+        setToast({
+          type: "error",
+          message: data.error || "Login failed. Please check your credentials.",
+        });
+        return;
+      }
+
       setToast({
         type: "success",
         message: "Signed in successfully. Welcome back!",
       });
-      if (form.email === "admin" && form.password === "admin123") {
-        document.cookie = "role=admin; path=/";
+
+      if (data.user?.role === "admin") {
         router.push("/admin");
       } else {
-        document.cookie = "role=student; path=/";
         router.push("/user/dashboard");
       }
-    }, 1200);
+    } catch (err) {
+      setLoading(false);
+      setToast({
+        type: "error",
+        message: "Network error occurred while signing in.",
+      });
+    }
   }
 
   return (
@@ -157,8 +178,8 @@ export default function LoginPage() {
           <SocialButton
             onClick={() =>
               setToast({
-                type: "success",
-                message: "Google sign-in is a placeholder in this demo.",
+                type: "info" as any,
+                message: "Please sign in with your registered institutional email or admin credentials.",
               })
             }
           />

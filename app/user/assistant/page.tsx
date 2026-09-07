@@ -24,6 +24,7 @@ export default function AssistantPage() {
     }
   ]);
   const [inputValue, setInputValue] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -31,26 +32,68 @@ export default function AssistantPage() {
   };
 
   useEffect(() => {
+    // Load chat history from backend
+    fetch("/api/assistant/history")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.messages && data.messages.length > 0) {
+          setMessages(data.messages.map((m: any) => ({
+            id: m.id,
+            sender: m.sender,
+            text: m.text,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isTyping]);
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
+  const handleSend = async (text: string) => {
+    if (!text.trim() || isTyping) return;
 
-    // Add user message
+    // Add user message immediately
     const userMsg: Message = { id: Date.now(), sender: 'user', text };
     setMessages(prev => [...prev, userMsg]);
     setInputValue("");
+    setIsTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botMsg: Message = { 
-        id: Date.now() + 1, 
-        sender: 'bot', 
-        text: "This is a simple mock response. In the future, I will connect to SafeGraph AI to give you real-time emergency guidance!"
+    try {
+      const res = await fetch("/api/assistant/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      const data = await res.json();
+      setIsTyping(false);
+
+      if (res.ok && data.message) {
+        const botMsg: Message = {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: data.message,
+        };
+        setMessages(prev => [...prev, botMsg]);
+      } else {
+        const botMsg: Message = {
+          id: Date.now() + 1,
+          sender: 'bot',
+          text: "I'm currently unable to retrieve disaster guidance. Please check your emergency services line or try again in a moment.",
+        };
+        setMessages(prev => [...prev, botMsg]);
+      }
+    } catch (err) {
+      setIsTyping(false);
+      const botMsg: Message = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: "Network error. Please verify your connection.",
       };
       setMessages(prev => [...prev, botMsg]);
-    }, 1000);
+    }
   };
 
   return (

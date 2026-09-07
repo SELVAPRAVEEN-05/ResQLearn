@@ -24,6 +24,7 @@ export interface RegisterFormData {
   email: string;
   institution: string;
   department: string;
+  yearOfStudy?: YearOfStudy;
   password: string;
   confirmPassword: string;
   agreeToTerms: boolean;

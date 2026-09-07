@@ -1,93 +1,161 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { 
-  mockCourses, 
-  mockQuizzes, 
-  mockAlerts, 
-  mockStudent,
-  Course,
-  Quiz,
-  Alert,
-  StudentProfile,
-  QuizAttempt,
-  Lesson
-} from "@/lib/mockData";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
-type MockDataContextType = {
+export type Lesson = {
+  id: string | number;
+  lessonId?: string;
+  title: string;
+  status: "locked" | "in-progress" | "completed";
+  content: string;
+  type: string;
+  description?: string;
+  materials?: any[];
+};
+
+export type Course = {
+  id?: number;
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  disasterType?: string;
+  iconName: string;
+  duration: string;
+  estimatedDuration?: string;
+  progress: number;
+  difficulty?: string;
+  published?: boolean;
+  lessons: Lesson[];
+};
+
+export type Question = {
+  id: string;
+  text: string;
+  options: string[];
+  correctAnswerIndex: number;
+  explanation: string;
+};
+
+export type Quiz = {
+  slug: string;
+  title: string;
+  category: string;
+  questions: Question[];
+  difficulty: "Easy" | "Medium" | "Hard";
+};
+
+export type QuizAttempt = {
+  id: string;
+  quizSlug: string;
+  quizTitle: string;
+  score: number;
+  total: number;
+  date: string;
+};
+
+export type Alert = {
+  id: string;
+  title: string;
+  message: string;
+  severity: "High" | "Medium" | "Low";
+  date: string;
+  read: boolean;
+};
+
+export type StudentProfile = {
+  name: string;
+  email: string;
+  avatar?: string;
+  preparednessScore: number;
+  certificates: number;
+};
+
+type DataContextType = {
   courses: Course[];
   quizzes: Quiz[];
   alerts: Alert[];
   profile: StudentProfile;
   quizAttempts: QuizAttempt[];
-  markLessonComplete: (courseSlug: string, lessonId: string) => void;
-  submitQuiz: (quizSlug: string, score: number, total: number) => string; // returns attemptId
-  markAlertRead: (alertId: string) => void;
-  updateProfile: (name: string, email: string, avatar?: string) => void;
-  addCourse: (course: Course) => void;
+  isLoading: boolean;
+  markLessonComplete: (courseSlug: string, lessonId: string | number) => Promise<void>;
+  submitQuiz: (quizSlug: string, score: number, total: number, answers?: any) => Promise<string>;
+  markAlertRead: (alertId: string) => Promise<void>;
+  updateProfile: (name: string, email: string, avatar?: string, institution?: string, department?: string) => Promise<void>;
+  addCourse: (course: Course) => Promise<void>;
+  refreshData: () => Promise<void>;
 };
 
-const MockDataContext = createContext<MockDataContextType | undefined>(undefined);
+const MockDataContext = createContext<DataContextType | undefined>(undefined);
 
 export function MockDataProvider({ children }: { children: React.ReactNode }) {
-  // Use localStorage to persist state if possible, otherwise fall back to initial mocks
   const [courses, setCourses] = useState<Course[]>([]);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [profile, setProfile] = useState<StudentProfile>(mockStudent);
+  const [profile, setProfile] = useState<StudentProfile>({
+    name: "",
+    email: "",
+    preparednessScore: 0,
+    certificates: 0,
+  });
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
-  
-  const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Load from localStorage or use defaults
-    const storedCourses = localStorage.getItem("resq_mock_courses");
-    const storedQuizzes = localStorage.getItem("resq_mock_quizzes");
-    const storedAlerts = localStorage.getItem("resq_mock_alerts");
-    const storedStudent = localStorage.getItem("resq_mock_student");
-    const storedAttempts = localStorage.getItem("resq_mock_attempts");
+  const fetchAllData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [coursesRes, quizzesRes, alertsRes, profileRes, historyRes] = await Promise.allSettled([
+        fetch("/api/courses").then((r) => (r.ok ? r.json() : null)),
+        fetch("/api/quizzes").then((r) => (r.ok ? r.json() : null)),
+        fetch("/api/alerts").then((r) => (r.ok ? r.json() : null)),
+        fetch("/api/user/profile").then((r) => (r.ok ? r.json() : null)),
+        fetch("/api/quizzes/history").then((r) => (r.ok ? r.json() : null)),
+      ]);
 
-    if (storedCourses) setCourses(JSON.parse(storedCourses));
-    else setCourses(mockCourses);
-
-    if (storedQuizzes) setQuizzes(JSON.parse(storedQuizzes));
-    else setQuizzes(mockQuizzes);
-
-    if (storedAlerts) setAlerts(JSON.parse(storedAlerts));
-    else setAlerts(mockAlerts);
-
-    if (storedStudent) {
-      const parsed = JSON.parse(storedStudent);
-      setProfile({ ...mockStudent, ...parsed });
-    } else {
-      setProfile(mockStudent);
+      if (coursesRes.status === "fulfilled" && coursesRes.value?.courses) {
+        setCourses(coursesRes.value.courses);
+      }
+      if (quizzesRes.status === "fulfilled" && quizzesRes.value?.quizzes) {
+        setQuizzes(quizzesRes.value.quizzes);
+      }
+      if (alertsRes.status === "fulfilled" && alertsRes.value?.alerts) {
+        setAlerts(alertsRes.value.alerts);
+      }
+      if (profileRes.status === "fulfilled" && profileRes.value?.profile) {
+        const p = profileRes.value.profile;
+        setProfile({
+          name: p.name || "",
+          email: p.email || "",
+          avatar: p.avatar,
+          preparednessScore: p.preparedness_score ?? 0,
+          certificates: p.certificates ?? 0,
+        });
+      }
+      if (historyRes.status === "fulfilled" && historyRes.value?.attempts) {
+        setQuizAttempts(historyRes.value.attempts);
+      }
+    } catch (err) {
+      console.error("Error fetching live database records:", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    if (storedAttempts) setQuizAttempts(JSON.parse(storedAttempts));
-    
-    setMounted(true);
   }, []);
 
-  // Save to localStorage whenever state changes (if mounted)
   useEffect(() => {
-    if (!mounted) return;
-    localStorage.setItem("resq_mock_courses", JSON.stringify(courses));
-    localStorage.setItem("resq_mock_quizzes", JSON.stringify(quizzes));
-    localStorage.setItem("resq_mock_alerts", JSON.stringify(alerts));
-    localStorage.setItem("resq_mock_student", JSON.stringify(profile));
-    localStorage.setItem("resq_mock_attempts", JSON.stringify(quizAttempts));
-  }, [courses, quizzes, alerts, profile, quizAttempts, mounted]);
+    fetchAllData();
+  }, [fetchAllData]);
 
-  const markLessonComplete = (courseSlug: string, lessonId: string) => {
-    setCourses(prevCourses => {
-      return prevCourses.map(course => {
+  const markLessonComplete = async (courseSlug: string, lessonId: string | number) => {
+    // Optimistic UI update
+    setCourses((prevCourses) =>
+      prevCourses.map((course) => {
         if (course.slug !== courseSlug) return course;
 
         let foundCurrent = false;
         let completedCount = 0;
 
-        const updatedLessons = course.lessons.map((lesson, idx) => {
-          if (lesson.id === lessonId) {
+        const updatedLessons = course.lessons.map((lesson) => {
+          if (String(lesson.id) === String(lessonId) || lesson.lessonId === String(lessonId)) {
             foundCurrent = true;
             completedCount++;
             return { ...lesson, status: "completed" as const };
@@ -97,77 +165,132 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
             return lesson;
           }
           if (foundCurrent && lesson.status === "locked") {
-            foundCurrent = false; // Only unlock the immediate next one
+            foundCurrent = false;
             return { ...lesson, status: "in-progress" as const };
           }
           return lesson;
         });
 
-        // Recalculate progress
-        const progress = Math.round((completedCount / course.lessons.length) * 100);
+        const progress = course.lessons.length > 0 ? Math.round((completedCount / course.lessons.length) * 100) : 100;
+        return { ...course, lessons: updatedLessons, progress };
+      })
+    );
 
-        return {
-          ...course,
-          lessons: updatedLessons,
-          progress
-        };
+    // Call real API
+    try {
+      await fetch(`/api/courses/${courseSlug}/lessons/${lessonId}/complete`, {
+        method: "POST",
       });
-    });
+      const profRes = await fetch("/api/user/profile");
+      if (profRes.ok) {
+        const data = await profRes.json();
+        if (data.profile) {
+          setProfile((prev) => ({
+            ...prev,
+            preparednessScore: data.profile.preparedness_score,
+            certificates: data.profile.certificates,
+          }));
+        }
+      }
+    } catch (e) {
+      console.error("API error completing lesson:", e);
+    }
   };
 
-  const submitQuiz = (quizSlug: string, score: number, total: number) => {
-    const quiz = quizzes.find(q => q.slug === quizSlug);
-    if (!quiz) return "";
-
+  const submitQuiz = async (quizSlug: string, score: number, total: number, answers?: any): Promise<string> => {
     const attemptId = `attempt_${Date.now()}`;
-    const newAttempt: QuizAttempt = {
+    const quiz = quizzes.find((q) => q.slug === quizSlug);
+
+    const localAttempt: QuizAttempt = {
       id: attemptId,
       quizSlug,
-      quizTitle: quiz.title,
+      quizTitle: quiz?.title || quizSlug,
       score,
       total,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
     };
 
-    setQuizAttempts(prev => [newAttempt, ...prev]);
+    setQuizAttempts((prev) => [localAttempt, ...prev]);
 
-    // Update student score (mock logic: add 10 points for a good score)
-    if (score / total >= 0.7) {
-      setProfile(prev => ({ ...prev, preparednessScore: prev.preparednessScore + 10 }));
+    try {
+      const res = await fetch(`/api/quizzes/${quizSlug}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ score, total, answers }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfile((prev) => ({
+          ...prev,
+          preparednessScore: Math.min(100, prev.preparednessScore + (score / total >= 0.7 ? 10 : 3)),
+        }));
+        return data.attemptId || attemptId;
+      }
+    } catch (e) {
+      console.error("Quiz submission API error:", e);
     }
 
     return attemptId;
   };
 
-  const markAlertRead = (alertId: string) => {
-    setAlerts(prev => prev.map(a => a.id === alertId ? { ...a, read: true } : a));
+  const markAlertRead = async (alertId: string) => {
+    setAlerts((prev) => prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)));
+    try {
+      await fetch(`/api/alerts/${alertId}/read`, { method: "POST" });
+    } catch (e) {
+      console.error("Mark alert read API error:", e);
+    }
   };
 
-  const updateProfile = (name: string, email: string, avatar?: string) => {
-    setProfile(prev => ({ ...prev, name, email, avatar }));
+  const updateProfile = async (
+    name: string,
+    email: string,
+    avatar?: string,
+    institution?: string,
+    department?: string
+  ) => {
+    setProfile((prev) => ({ ...prev, name, email, avatar }));
+    try {
+      await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, avatar, institution, department }),
+      });
+    } catch (e) {
+      console.error("Update profile API error:", e);
+    }
   };
 
-  const addCourse = (course: Course) => {
-    setCourses(prev => [course, ...prev]);
+  const addCourse = async (course: Course) => {
+    setCourses((prev) => [course, ...prev]);
+    try {
+      await fetch("/api/admin/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(course),
+      });
+    } catch (e) {
+      console.error("Add course API error:", e);
+    }
   };
-
-  if (!mounted) {
-    return null; // or a loading spinner
-  }
 
   return (
-    <MockDataContext.Provider value={{
-      courses,
-      quizzes,
-      alerts,
-      profile,
-      quizAttempts,
-      markLessonComplete,
-      submitQuiz,
-      markAlertRead,
-      updateProfile,
-      addCourse
-    }}>
+    <MockDataContext.Provider
+      value={{
+        courses,
+        quizzes,
+        alerts,
+        profile,
+        quizAttempts,
+        isLoading,
+        markLessonComplete,
+        submitQuiz,
+        markAlertRead,
+        updateProfile,
+        addCourse,
+        refreshData: fetchAllData,
+      }}
+    >
       {children}
     </MockDataContext.Provider>
   );
