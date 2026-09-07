@@ -1,23 +1,24 @@
 import { Pool } from "pg";
 
-const DEFAULT_DATABASE_URL =
-  "postgresql://neondb_owner:npg_DVlcze2Gt4iC@ep-rapid-bird-ae4xdzo8-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
-
-const connectionString =
+const RAW_DATABASE_URL =
   process.env.DATABASE_URL ||
   process.env.POSTGRES_URL ||
   process.env.POSTGRES_PRISMA_URL ||
-  DEFAULT_DATABASE_URL;
+  "postgresql://neondb_owner:npg_DVlcze2Gt4iC@ep-rapid-bird-ae4xdzo8-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require";
+
+// Sanitize connection string for node pg driver (strip channel_binding if present)
+const sanitizedConnectionString = RAW_DATABASE_URL
+  .replace(/[?&]channel_binding=[^&]+/g, "")
+  .replace(/[?&]sslmode=[^&]+/g, "");
 
 declare global {
   // eslint-disable-next-line no-var
   var _pgPool: Pool | undefined;
 }
 
-// Serverless-friendly global pool singleton
 if (!global._pgPool) {
   global._pgPool = new Pool({
-    connectionString,
+    connectionString: sanitizedConnectionString,
     ssl: {
       rejectUnauthorized: false,
     },
@@ -25,11 +26,17 @@ if (!global._pgPool) {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
   });
+
+  // Handle background pool errors gracefully
+  global._pgPool.on("error", (err) => {
+    console.warn("Unexpected idle client error in pg pool:", err.message);
+  });
 }
 
 const pool: Pool = global._pgPool;
 
 export default pool;
+
 
 const INIT_DDL = `
   CREATE TABLE IF NOT EXISTS resq_users (
@@ -180,7 +187,7 @@ async function ensureSchema() {
           VALUES (
             'SafeGraph Admin',
             'admin@safegraph.ai',
-            '$2b$10$vGcK7SD0AA1/zHv0eUBLn.HfpFXfkCgdPYdpjReyRSgVJDyrNzhH6',
+            '$2b$10$pyQzPCY/F7XBaX7VKRA.fuE6jBXeKxwp9iECTXPn37BcQqGZSyoQy',
             'admin',
             'SafeGraph AI Command',
             'Administration',
@@ -188,6 +195,7 @@ async function ensureSchema() {
           )
           ON CONFLICT (email) DO NOTHING;
         `);
+
       } catch (e) {
         console.error("Auto schema initialization warning:", e);
       }
