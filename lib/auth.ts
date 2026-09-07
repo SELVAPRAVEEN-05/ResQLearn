@@ -1,15 +1,30 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { verifyToken, UserTokenPayload } from "./jwt";
 import { query } from "./db";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
 export async function getSessionUser(): Promise<UserTokenPayload | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return null;
-  return await verifyToken(token);
+  try {
+    const cookieStore = await cookies();
+    let token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      const headerList = await headers();
+      const authHeader = headerList.get("authorization");
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.substring(7).trim();
+      }
+    }
+
+    if (!token) return null;
+    return await verifyToken(token);
+  } catch (err) {
+    console.error("getSessionUser error:", err);
+    return null;
+  }
 }
+
 
 export async function requireAdmin(): Promise<{ user: UserTokenPayload } | { errorResponse: NextResponse }> {
   const session = await getSessionUser();

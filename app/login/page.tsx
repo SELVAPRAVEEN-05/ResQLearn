@@ -92,6 +92,11 @@ export default function LoginPage() {
         return;
       }
 
+      if (typeof window !== "undefined") {
+        if (data.token) localStorage.setItem("token", data.token);
+        if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
       setToast({
         type: "success",
         message: "Signed in successfully. Welcome back!",
@@ -102,6 +107,7 @@ export default function LoginPage() {
       } else {
         router.push("/user/dashboard");
       }
+
     } catch (err) {
       setLoading(false);
       setToast({
