@@ -55,7 +55,10 @@ export default function EditProfilePage() {
       if (res.ok) {
         router.push("/user/profile");
       } else {
-        const err = await res.json().catch(() => ({ error: "Failed to update profile" }));
+        const err = await res
+          .json()
+          .catch(() => ({ error: "Failed to update profile" }));
+
         alert(err.error || "Update failed");
       }
     } catch (e: any) {
@@ -69,8 +72,10 @@ export default function EditProfilePage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <RotateCw size={28} className="animate-spin text-[#10B981] mb-2" />
-        <p className="text-sm font-semibold text-[#111827]">Loading profile settings...</p>
+        <RotateCw className="animate-spin text-[#10B981] mb-2" size={28} />
+        <p className="text-sm font-semibold text-[#111827]">
+          Loading profile settings...
+        </p>
       </div>
     );
   }
@@ -79,110 +84,130 @@ export default function EditProfilePage() {
     <section className="space-y-6 animate-[fadeIn_0.5s_ease-out] pb-10">
       <div className="flex items-center gap-3 pt-1">
         <button
-          onClick={() => router.back()}
-          className="rounded-full p-1 transition hover:bg-[#F3F4F6]"
           aria-label="Go back"
+          className="rounded-full p-1 transition hover:bg-[#F3F4F6]"
+          onClick={() => router.back()}
         >
-          <ArrowLeft size={18} className="text-[#111827]" />
+          <ArrowLeft className="text-[#111827]" size={18} />
         </button>
         <h1 className="text-xl font-bold text-[#111827]">Edit Profile</h1>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-5">
+      <form className="space-y-5" onSubmit={handleSave}>
         <div className="flex flex-col items-center">
           <div className="relative group cursor-pointer">
             <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-[#F3F4F6] border-2 border-[#E5E7EB]">
               {avatar ? (
-                <img src={avatar} alt="Profile" className="h-full w-full object-cover" />
+                <img
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                  src={avatar}
+                />
               ) : (
-                <User size={40} className="text-[#9CA3AF]" />
+                <User className="text-[#9CA3AF]" size={40} />
               )}
             </div>
             <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <Camera size={24} className="text-white" />
+              <Camera className="text-white" size={24} />
             </div>
           </div>
           <p className="text-xs text-[#6B7280] mt-2">Avatar URL (optional)</p>
           <input
-            type="text"
+            className="mt-1 text-center text-xs border-b border-[#E5E7EB] focus:outline-none focus:border-[#10B981] pb-1 w-full max-w-[240px]"
             placeholder="https://images.unsplash.com/..."
+            type="text"
             value={avatar}
             onChange={(e) => setAvatar(e.target.value)}
-            className="mt-1 text-center text-xs border-b border-[#E5E7EB] focus:outline-none focus:border-[#10B981] pb-1 w-full max-w-[240px]"
           />
         </div>
 
         <div className="space-y-4 rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">Full Name</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">
+              Full Name
+            </label>
             <div className="relative">
-              <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+              <User
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                size={16}
+              />
               <input
+                required
+                className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 pl-10 pr-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 pl-10 pr-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">Email Address</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">
+              Email Address
+            </label>
             <div className="relative">
-              <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+              <Mail
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+                size={16}
+              />
               <input
-                type="email"
-                value={email}
                 disabled
                 className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F3F4F6] py-3 pl-10 pr-4 text-sm text-[#6B7280] cursor-not-allowed"
+                type="email"
+                value={email}
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">Institution / Organization</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">
+              Institution / Organization
+            </label>
             <input
-              type="text"
+              className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
               placeholder="e.g. Bannari Amman Institute of Technology"
+              type="text"
               value={institution}
               onChange={(e) => setInstitution(e.target.value)}
-              className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">Department</label>
+              <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">
+                Department
+              </label>
               <input
-                type="text"
+                className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
                 placeholder="e.g. CSE / IT"
+                type="text"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">Year of Study</label>
+              <label className="mb-1.5 block text-xs font-bold uppercase text-[#374151]">
+                Year of Study
+              </label>
               <input
-                type="text"
+                className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
                 placeholder="e.g. 3rd Year"
+                type="text"
                 value={yearOfStudy}
                 onChange={(e) => setYearOfStudy(e.target.value)}
-                className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] py-3 px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30"
               />
             </div>
           </div>
         </div>
 
         <button
-          type="submit"
-          disabled={saving}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#10B981] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#0E9F72] disabled:opacity-50"
+          disabled={saving}
+          type="submit"
         >
           {saving ? (
             <>
-              <RotateCw size={16} className="animate-spin" /> Saving Changes...
+              <RotateCw className="animate-spin" size={16} /> Saving Changes...
             </>
           ) : (
             <>

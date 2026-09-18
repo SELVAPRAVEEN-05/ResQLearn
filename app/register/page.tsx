@@ -1,5 +1,16 @@
 "use client";
 
+import type {
+  RegisterFormData,
+  RegisterFormErrors,
+  ToastState,
+} from "@/types/auth";
+
+import { BookOpen, Building2, Mail, User, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+
 import AuthLayout from "@/components/auth/authLayout";
 import SocialButton from "@/components/auth/socialButton";
 import Button from "@/components/ui/button";
@@ -7,30 +18,12 @@ import Checkbox from "@/components/ui/checkbox";
 import Divider from "@/components/ui/divider";
 import Input from "@/components/ui/input";
 import PasswordInput from "@/components/ui/passwordInput";
-import SelectField from "@/components/ui/selectField";
 import Toast from "@/components/ui/toast";
 import {
-    isRequired,
-    isStrongEnoughPassword,
-    isValidEmail,
+  isRequired,
+  isStrongEnoughPassword,
+  isValidEmail,
 } from "@/lib/validation";
-import type {
-    RegisterFormData,
-    RegisterFormErrors,
-    ToastState,
-} from "@/types/auth";
-import {
-    BadgeCheck,
-    BookOpen,
-    Building2,
-    Info,
-    Mail,
-    User,
-    UserPlus,
-} from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
 
 const FEATURES = [
   "AI-powered simulations",
@@ -38,7 +31,6 @@ const FEATURES = [
   "Personalized learning paths",
   "Guided emergency response training",
 ];
-
 
 const INITIAL_FORM: RegisterFormData = {
   fullName: "",
@@ -58,35 +50,35 @@ export default function RegisterPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
 
   type ErrorField = keyof RegisterFormData;
-  
 
-function update<K extends keyof RegisterFormData>(
-  key: K,
-  value: RegisterFormData[K],
-) {
-  setForm((prev) => ({ ...prev, [key]: value }));
-
-  if (
-    key === "fullName" ||
-    key === "email" ||
-    key === "institution" ||
-    key === "department" ||
-    key === "password" ||
-    key === "confirmPassword" ||
-    key === "agreeToTerms"
+  function update<K extends keyof RegisterFormData>(
+    key: K,
+    value: RegisterFormData[K],
   ) {
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next[key];
+    setForm((prev) => ({ ...prev, [key]: value }));
 
-      if (key === "password") {
-        delete next.confirmPassword;
-      }
+    if (
+      key === "fullName" ||
+      key === "email" ||
+      key === "institution" ||
+      key === "department" ||
+      key === "password" ||
+      key === "confirmPassword" ||
+      key === "agreeToTerms"
+    ) {
+      setErrors((prev) => {
+        const next = { ...prev };
 
-      return next;
-    });
+        delete next[key];
+
+        if (key === "password") {
+          delete next.confirmPassword;
+        }
+
+        return next;
+      });
+    }
   }
-}
 
   function validate(): boolean {
     const nextErrors: RegisterFormErrors = {};
@@ -123,6 +115,7 @@ function update<K extends keyof RegisterFormData>(
     }
 
     setErrors(nextErrors);
+
     return Object.keys(nextErrors).length === 0;
   }
 
@@ -133,6 +126,7 @@ function update<K extends keyof RegisterFormData>(
         type: "error",
         message: "Please fix the highlighted fields.",
       });
+
       return;
     }
 
@@ -152,6 +146,7 @@ function update<K extends keyof RegisterFormData>(
       });
 
       const data = await res.json();
+
       setLoading(false);
 
       if (!res.ok) {
@@ -159,6 +154,7 @@ function update<K extends keyof RegisterFormData>(
           type: "error",
           message: data.error || "Failed to create account.",
         });
+
         return;
       }
 
@@ -178,9 +174,9 @@ function update<K extends keyof RegisterFormData>(
 
   return (
     <AuthLayout
-      heading="Join SafeGraph AI"
       description="Learn disaster preparedness through AI-powered education, interactive simulations, quizzes and personalized guidance."
       features={FEATURES}
+      heading="Join SafeGraph AI"
       illustrationVariant="cap"
     >
       <div className="animate-[fadeIn_0.5s_ease-out] rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-[0_4px_24px_-4px_rgba(17,24,39,0.06)] sm:p-9">
@@ -192,88 +188,89 @@ function update<K extends keyof RegisterFormData>(
             Start your disaster preparedness learning journey.
           </p>
         </div>
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <form noValidate className="space-y-5" onSubmit={handleSubmit}>
           <Input
+            autoComplete="name"
+            error={errors.fullName}
+            icon={<User size={18} strokeWidth={1.75} />}
             label="Full Name"
             name="fullName"
-            autoComplete="name"
             placeholder="Jordan Lee"
-            icon={<User size={18} strokeWidth={1.75} />}
             value={form.fullName}
-            error={errors.fullName}
             onChange={(e) => update("fullName", e.target.value)}
           />
 
           <Input
-            label="Email Address"
-            type="email"
-            name="email"
             autoComplete="email"
-            placeholder="you@university.edu"
-            icon={<Mail size={18} strokeWidth={1.75} />}
-            value={form.email}
             error={errors.email}
+            icon={<Mail size={18} strokeWidth={1.75} />}
+            label="Email Address"
+            name="email"
+            placeholder="you@university.edu"
+            type="email"
+            value={form.email}
             onChange={(e) => update("email", e.target.value)}
           />
 
           <Input
+            error={errors.institution}
+            icon={<Building2 size={18} strokeWidth={1.75} />}
             label="College / School Name"
             name="institution"
             placeholder="Riverside State University"
-            icon={<Building2 size={18} strokeWidth={1.75} />}
             value={form.institution}
-            error={errors.institution}
             onChange={(e) => update("institution", e.target.value)}
           />
 
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <Input
+              error={errors.department}
+              icon={<BookOpen size={18} strokeWidth={1.75} />}
               label="Department"
               name="department"
               placeholder="Computer Science"
-              icon={<BookOpen size={18} strokeWidth={1.75} />}
               value={form.department}
-              error={errors.department}
               onChange={(e) => update("department", e.target.value)}
             />
           </div>
 
-
           <PasswordInput
+            showStrength
+            autoComplete="new-password"
+            error={errors.password}
             label="Password"
             name="password"
-            autoComplete="new-password"
             placeholder="Create a password"
-            showStrength
             value={form.password}
-            error={errors.password}
             onChange={(e) => update("password", e.target.value)}
           />
 
           <PasswordInput
+            autoComplete="new-password"
+            error={errors.confirmPassword}
             label="Confirm Password"
             name="confirmPassword"
-            autoComplete="new-password"
             placeholder="Re-enter your password"
             value={form.confirmPassword}
-            error={errors.confirmPassword}
             onChange={(e) => update("confirmPassword", e.target.value)}
           />
 
           <Checkbox
+            checked={form.agreeToTerms}
+            error={errors.agreeToTerms}
             label={
               <>
                 I agree to the{" "}
                 <Link
-                  href="/terms"
                   className="font-medium text-[#10B981] hover:underline"
+                  href="/terms"
                 >
                   Terms &amp; Conditions
                 </Link>{" "}
                 and{" "}
                 <Link
-                  href="/privacy"
                   className="font-medium text-[#10B981] hover:underline"
+                  href="/privacy"
                 >
                   Privacy Policy
                 </Link>
@@ -281,12 +278,10 @@ function update<K extends keyof RegisterFormData>(
               </>
             }
             name="agreeToTerms"
-            checked={form.agreeToTerms}
-            error={errors.agreeToTerms}
             onChange={(e) => update("agreeToTerms", e.target.checked)}
           />
 
-          <Button type="submit" loading={loading} icon={<UserPlus size={18} />}>
+          <Button icon={<UserPlus size={18} />} loading={loading} type="submit">
             Create Student Account
           </Button>
 
@@ -305,8 +300,8 @@ function update<K extends keyof RegisterFormData>(
         <p className="mt-7 text-center text-sm text-[#6B7280]">
           Already have an account?{" "}
           <Link
-            href="/login"
             className="font-semibold text-[#10B981] transition-colors hover:text-[#0D9268] focus:outline-none focus-visible:underline"
+            href="/login"
           >
             Log in
           </Link>

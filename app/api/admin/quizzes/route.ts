@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 
 export async function GET() {
@@ -8,7 +9,7 @@ export async function GET() {
               q.title as quiz_title, q.category
        FROM resq_quiz_questions qq
        JOIN resq_quizzes q ON qq.quiz_id = q.id
-       ORDER BY qq.id ASC`
+       ORDER BY qq.id ASC`,
     );
 
     return NextResponse.json({
@@ -18,14 +19,19 @@ export async function GET() {
         quizTitle: q.quiz_title,
         category: q.category,
         text: q.text,
-        options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
+        options:
+          typeof q.options === "string" ? JSON.parse(q.options) : q.options,
         correctAnswerIndex: q.correct_answer_index,
         explanation: q.explanation,
       })),
     });
   } catch (error: any) {
     console.error("Fetch admin questions error:", error);
-    return NextResponse.json({ error: "Failed to fetch quiz questions" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch quiz questions" },
+      { status: 500 },
+    );
   }
 }
 
@@ -34,12 +40,15 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { quizSlug, text, options, correctAnswerIndex, explanation } = body;
 
-    let quizRes = await query("SELECT id FROM resq_quizzes WHERE slug = $1", [quizSlug || "general-safety"]);
+    let quizRes = await query("SELECT id FROM resq_quizzes WHERE slug = $1", [
+      quizSlug || "general-safety",
+    ]);
+
     if (quizRes.rows.length === 0) {
       // create fallback quiz
       quizRes = await query(
         "INSERT INTO resq_quizzes (slug, title, category, difficulty) VALUES ($1, $2, 'Fire', 'Medium') RETURNING id",
-        [quizSlug || "general-safety", "General Preparedness Assessment"]
+        [quizSlug || "general-safety", "General Preparedness Assessment"],
       );
     }
 
@@ -50,12 +59,26 @@ export async function POST(request: Request) {
       `INSERT INTO resq_quiz_questions (question_id, quiz_id, text, options, correct_answer_index, explanation)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [questionId, quizId, text, JSON.stringify(options), correctAnswerIndex, explanation || ""]
+      [
+        questionId,
+        quizId,
+        text,
+        JSON.stringify(options),
+        correctAnswerIndex,
+        explanation || "",
+      ],
     );
 
-    return NextResponse.json({ message: "Question created", question: newQ.rows[0] }, { status: 201 });
+    return NextResponse.json(
+      { message: "Question created", question: newQ.rows[0] },
+      { status: 201 },
+    );
   } catch (error: any) {
     console.error("Create quiz question error:", error);
-    return NextResponse.json({ error: "Failed to create question" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to create question" },
+      { status: 500 },
+    );
   }
 }

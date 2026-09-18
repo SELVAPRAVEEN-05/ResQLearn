@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
   const session = await getSessionUser();
@@ -20,7 +21,7 @@ export async function GET(
        FROM resq_courses c
        LEFT JOIN resq_user_course_progress p ON c.id = p.course_id AND p.user_id = $1
        WHERE ${isNumeric ? "(c.id = $2 OR c.slug = $3)" : "c.slug = $2"} AND c.is_published = TRUE`,
-      isNumeric ? [userId, parseInt(slug, 10), slug] : [userId, slug]
+      isNumeric ? [userId, parseInt(slug, 10), slug] : [userId, slug],
     );
 
     if (courseRes.rows.length === 0) {
@@ -34,12 +35,12 @@ export async function GET(
        FROM resq_lessons l
        WHERE l.course_id = $1 AND l.is_published = TRUE
        ORDER BY l.order_index ASC, l.id ASC`,
-      [course.id]
+      [course.id],
     );
 
     const progRes = await query(
       `SELECT completed_lesson_ids FROM resq_user_course_progress WHERE user_id = $1 AND course_id = $2`,
-      [userId, course.id]
+      [userId, course.id],
     );
     const completedIds: string[] = progRes.rows[0]?.completed_lesson_ids || [];
 
@@ -53,10 +54,12 @@ export async function GET(
          FROM resq_materials
          WHERE lesson_id = $1
          ORDER BY order_index ASC, id ASC`,
-        [l.id]
+        [l.id],
       );
 
-      const isCompleted = completedIds.includes(String(l.id)) || completedIds.includes(l.lessonId);
+      const isCompleted =
+        completedIds.includes(String(l.id)) ||
+        completedIds.includes(l.lessonId);
       let status: "completed" | "in-progress" | "locked" = "locked";
 
       if (isCompleted) {
@@ -87,6 +90,10 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Course fetch error:", error);
-    return NextResponse.json({ error: "Failed to fetch course details" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch course details" },
+      { status: 500 },
+    );
   }
 }

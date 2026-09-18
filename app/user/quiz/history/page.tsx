@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Droplet, Wind, Zap, Flame, Sun, ChevronRight, RotateCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Droplet,
+  Wind,
+  Zap,
+  Flame,
+  Sun,
+  ChevronRight,
+  RotateCw,
+} from "lucide-react";
 
 interface AttemptItem {
   id: string;
@@ -19,10 +28,13 @@ const filters = ["All", "Flood", "Cyclone", "Earthquake", "Fire"];
 
 const getIcon = (title: string) => {
   const l = title.toLowerCase();
+
   if (l.includes("flood")) return Droplet;
-  if (l.includes("cyclone") || l.includes("wind") || l.includes("storm")) return Wind;
+  if (l.includes("cyclone") || l.includes("wind") || l.includes("storm"))
+    return Wind;
   if (l.includes("earthquake") || l.includes("seismic")) return Zap;
   if (l.includes("fire")) return Flame;
+
   return Sun;
 };
 
@@ -47,8 +59,10 @@ export default function QuizHistoryPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <RotateCw size={28} className="animate-spin text-[#10B981] mb-2" />
-        <p className="text-sm font-semibold text-[#111827]">Loading assessment history...</p>
+        <RotateCw className="animate-spin text-[#10B981] mb-2" size={28} />
+        <p className="text-sm font-semibold text-[#111827]">
+          Loading assessment history...
+        </p>
       </div>
     );
   }
@@ -56,17 +70,24 @@ export default function QuizHistoryPage() {
   const totalAttempts = quizAttempts.length;
   const avgScore =
     totalAttempts > 0
-      ? Math.round((quizAttempts.reduce((acc, a) => acc + a.score / (a.total || 1), 0) / totalAttempts) * 100)
+      ? Math.round(
+          (quizAttempts.reduce((acc, a) => acc + a.score / (a.total || 1), 0) /
+            totalAttempts) *
+            100,
+        )
       : 0;
 
   const passedAttempts = quizAttempts.filter((a) => a.passed).length;
-  const passRate = totalAttempts > 0 ? Math.round((passedAttempts / totalAttempts) * 100) : 0;
+  const passRate =
+    totalAttempts > 0 ? Math.round((passedAttempts / totalAttempts) * 100) : 0;
 
   const filteredAttempts = quizAttempts.filter((a) => {
     if (selectedFilter === "All") return true;
+
     return (
       a.quizTitle.toLowerCase().includes(selectedFilter.toLowerCase()) ||
-      (a.category && a.category.toLowerCase().includes(selectedFilter.toLowerCase()))
+      (a.category &&
+        a.category.toLowerCase().includes(selectedFilter.toLowerCase()))
     );
   });
 
@@ -74,14 +95,16 @@ export default function QuizHistoryPage() {
     <section className="space-y-4 animate-[fadeIn_0.5s_ease-out] pb-10">
       <div className="flex items-center gap-3">
         <Link
-          href="/user/quiz"
-          className="inline-flex items-center justify-center rounded-full border border-[#E5E7EB] bg-white p-2 text-[#111827] transition hover:bg-[#F3F4F6]"
           aria-label="Back to quiz dashboard"
+          className="inline-flex items-center justify-center rounded-full border border-[#E5E7EB] bg-white p-2 text-[#111827] transition hover:bg-[#F3F4F6]"
+          href="/user/quiz"
         >
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-[#6B7280]">History</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-[#6B7280]">
+            History
+          </p>
           <h1 className="text-2xl font-black text-[#111827]">Quiz History</h1>
         </div>
       </div>
@@ -105,12 +128,12 @@ export default function QuizHistoryPage() {
         {filters.map((f) => (
           <button
             key={f}
-            onClick={() => setSelectedFilter(f)}
             className={
               selectedFilter === f
                 ? "shrink-0 rounded-full bg-[#10B981] px-4 py-2 text-xs font-bold text-white shadow-xs"
                 : "shrink-0 rounded-full border border-[#E5E7EB] bg-white px-4 py-2 text-xs font-semibold text-[#6B7280] hover:text-[#111827]"
             }
+            onClick={() => setSelectedFilter(f)}
           >
             {f}
           </button>
@@ -120,11 +143,15 @@ export default function QuizHistoryPage() {
       <div className="space-y-3">
         {filteredAttempts.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#D1D5DB] p-8 text-center bg-white mt-4 space-y-2">
-            <p className="text-sm font-bold text-[#111827]">No quiz attempts yet.</p>
-            <p className="text-xs text-[#6B7280]">Complete an assessment to build your official safety record.</p>
+            <p className="text-sm font-bold text-[#111827]">
+              No quiz attempts yet.
+            </p>
+            <p className="text-xs text-[#6B7280]">
+              Complete an assessment to build your official safety record.
+            </p>
             <Link
-              href="/user/quiz"
               className="inline-flex items-center gap-1.5 rounded-xl bg-[#10B981] px-4 py-2 text-xs font-bold text-white hover:bg-[#0E9F72] mt-2"
+              href="/user/quiz"
             >
               Start Quiz
             </Link>
@@ -143,15 +170,17 @@ export default function QuizHistoryPage() {
             return (
               <Link
                 key={a.id}
-                href={`/user/quiz/${a.quizSlug}/result?attemptId=${a.id}`}
                 className="flex w-full items-center justify-between gap-3 rounded-3xl border border-[#E5E7EB] bg-white p-4 text-left shadow-sm transition hover:bg-[#F9FAFB]"
+                href={`/user/quiz/${a.quizSlug}/result?attemptId=${a.id}`}
               >
                 <div className="flex items-center gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F3F4F6]">
-                    <Icon size={18} className="text-[#111827]" />
+                    <Icon className="text-[#111827]" size={18} />
                   </span>
                   <div>
-                    <p className="text-sm font-bold text-[#111827]">{a.quizTitle}</p>
+                    <p className="text-sm font-bold text-[#111827]">
+                      {a.quizTitle}
+                    </p>
                     <p className="mt-0.5 text-xs text-[#6B7280]">
                       {a.score}/{a.total} · {scorePercent}% · {dateStr}
                     </p>
@@ -167,7 +196,7 @@ export default function QuizHistoryPage() {
                   >
                     {isPassed ? "Passed" : "Failed"}
                   </span>
-                  <ChevronRight size={16} className="text-[#9CA3AF]" />
+                  <ChevronRight className="text-[#9CA3AF]" size={16} />
                 </div>
               </Link>
             );

@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const session = await getSessionUser();
+
   if (!session) {
     return NextResponse.json({ message: "Guest view" });
   }
@@ -17,7 +19,7 @@ export async function POST(
     // Find alert either by alert_id or id
     const alertRes = await query(
       "SELECT id FROM resq_alerts WHERE alert_id = $1 OR id::text = $1",
-      [id]
+      [id],
     );
 
     if (alertRes.rows.length === 0) {
@@ -30,12 +32,16 @@ export async function POST(
       `INSERT INTO resq_user_alert_reads (user_id, alert_id)
        VALUES ($1, $2)
        ON CONFLICT (user_id, alert_id) DO NOTHING`,
-      [userId, alertDbId]
+      [userId, alertDbId],
     );
 
     return NextResponse.json({ message: "Alert marked as read" });
   } catch (error: any) {
     console.error("Mark alert read error:", error);
-    return NextResponse.json({ error: "Failed to mark alert as read" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to mark alert as read" },
+      { status: 500 },
+    );
   }
 }

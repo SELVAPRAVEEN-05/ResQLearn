@@ -20,14 +20,18 @@ interface QuizDetail {
   questions: Question[];
 }
 
-export default function QuizInProgressPage(props: { params: Promise<{ slug: string }> }) {
+export default function QuizInProgressPage(props: {
+  params: Promise<{ slug: string }>;
+}) {
   const params = use(props.params);
   const router = useRouter();
 
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<string, number>
+  >({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -48,8 +52,10 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <RotateCw size={28} className="animate-spin text-[#10B981] mb-2" />
-        <p className="text-sm font-semibold text-[#111827]">Loading assessment questions...</p>
+        <RotateCw className="animate-spin text-[#10B981] mb-2" size={28} />
+        <p className="text-sm font-semibold text-[#111827]">
+          Loading assessment questions...
+        </p>
       </div>
     );
   }
@@ -59,8 +65,8 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
       <div className="flex flex-col items-center justify-center h-64 text-center space-y-4">
         <p className="text-[#6B7280] text-sm">Quiz questions not found.</p>
         <button
-          onClick={() => router.push("/user/quiz")}
           className="text-[#10B981] font-semibold text-xs flex items-center gap-2 hover:underline"
+          onClick={() => router.push("/user/quiz")}
         >
           <ArrowLeft size={16} /> Back to Assessments
         </button>
@@ -87,9 +93,15 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
 
         if (res.ok) {
           const data = await res.json();
-          router.push(`/user/quiz/${quiz.slug}/result?attemptId=${data.attemptId}`);
+
+          router.push(
+            `/user/quiz/${quiz.slug}/result?attemptId=${data.attemptId}`,
+          );
         } else {
-          const err = await res.json().catch(() => ({ error: "Failed to submit" }));
+          const err = await res
+            .json()
+            .catch(() => ({ error: "Failed to submit" }));
+
           alert(err.error || "Submission failed");
           setSubmitting(false);
         }
@@ -98,6 +110,7 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
         alert("Failed to submit quiz assessment");
         setSubmitting(false);
       }
+
       return;
     }
     setCurrent((c) => c + 1);
@@ -112,7 +125,9 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
     <section className="space-y-5 animate-[fadeIn_0.5s_ease-out] pb-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[#111827]">Question {questionNumber} of {total}</h1>
+          <h1 className="text-xl font-bold text-[#111827]">
+            Question {questionNumber} of {total}
+          </h1>
           <p className="text-xs text-[#6B7280]">{quiz.title}</p>
         </div>
         <span className="flex items-center gap-1.5 rounded-full bg-[#FEE2E2] px-3 py-1.5 text-xs font-bold text-[#DC2626]">
@@ -121,22 +136,27 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
       </div>
 
       <div className="h-2 rounded-full bg-[#F3F4F6]">
-        <div className="h-2 rounded-full bg-[#10B981] transition-all" style={{ width: `${progress}%` }} />
+        <div
+          className="h-2 rounded-full bg-[#10B981] transition-all"
+          style={{ width: `${progress}%` }}
+        />
       </div>
 
       <div className="rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-        <p className="text-base font-bold leading-6 text-[#111827]">{question.text}</p>
+        <p className="text-base font-bold leading-6 text-[#111827]">
+          {question.text}
+        </p>
 
         <div className="mt-5 space-y-3">
           {question.options.map((option, i) => (
             <button
               key={option}
-              onClick={() => handleSelect(i)}
               className={
                 currentSelection === i
                   ? "flex w-full items-center gap-3 rounded-2xl border-2 border-[#10B981] bg-[#F0FDF4] px-4 py-3.5 text-left text-sm font-semibold text-[#111827]"
                   : "flex w-full items-center gap-3 rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3.5 text-left text-sm font-medium text-[#111827] transition hover:bg-[#F9FAFB]"
               }
+              onClick={() => handleSelect(i)}
             >
               <span
                 className={
@@ -145,7 +165,9 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
                     : "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-[#D1D5DB]"
                 }
               >
-                {currentSelection === i && <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />}
+                {currentSelection === i && (
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
+                )}
               </span>
               <span>{option}</span>
             </button>
@@ -155,20 +177,20 @@ export default function QuizInProgressPage(props: { params: Promise<{ slug: stri
 
       <div className="flex justify-between">
         <button
-          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-          disabled={current === 0 || submitting}
           className="flex items-center gap-2 rounded-2xl border border-[#E5E7EB] bg-white px-6 py-3 text-sm font-semibold text-[#111827] transition hover:bg-[#F9FAFB] disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled={current === 0 || submitting}
+          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
         >
           Previous
         </button>
         <button
-          onClick={handleNext}
-          disabled={currentSelection === undefined || submitting}
           className="flex items-center gap-2 rounded-2xl bg-[#10B981] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#0E9F72] disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={currentSelection === undefined || submitting}
+          onClick={handleNext}
         >
           {submitting ? (
             <>
-              <RotateCw size={14} className="animate-spin" /> Submitting...
+              <RotateCw className="animate-spin" size={14} /> Submitting...
             </>
           ) : questionNumber >= total ? (
             "Submit Assessment"

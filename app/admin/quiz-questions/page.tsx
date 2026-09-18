@@ -28,7 +28,10 @@ export default function ManageQuestionsPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // New question form
   const [newCategory, setNewCategory] = useState("Earthquake");
@@ -48,8 +51,10 @@ export default function ManageQuestionsPage() {
   const fetchQuestions = async () => {
     try {
       const res = await fetch("/api/admin/quizzes");
+
       if (res.ok) {
         const data = await res.json();
+
         setQuestions(data.questions || []);
         if (data.questions?.length > 0) {
           setExpanded([data.questions[0].id]);
@@ -77,18 +82,27 @@ export default function ManageQuestionsPage() {
   const handleAddQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newText.trim() || !optA.trim() || !optB.trim()) {
-      showFeedback("error", "Question text and at least Options A and B are required");
+      showFeedback(
+        "error",
+        "Question text and at least Options A and B are required",
+      );
+
       return;
     }
 
     setSaving(true);
-    const options = [optA.trim(), optB.trim(), optC.trim() || "N/A", optD.trim() || "N/A"];
+    const options = [
+      optA.trim(),
+      optB.trim(),
+      optC.trim() || "N/A",
+      optD.trim() || "N/A",
+    ];
     const quizSlug =
       newCategory.toLowerCase() === "earthquake"
         ? "earthquake-basics"
         : newCategory.toLowerCase() === "flood"
-        ? "flood-survival"
-        : "fire-safety";
+          ? "flood-survival"
+          : "fire-safety";
 
     try {
       const res = await fetch("/api/admin/quizzes", {
@@ -115,6 +129,7 @@ export default function ManageQuestionsPage() {
         fetchQuestions();
       } else {
         const data = await res.json();
+
         showFeedback("error", data.error || "Failed to create question");
       }
     } catch (err: any) {
@@ -128,6 +143,7 @@ export default function ManageQuestionsPage() {
     if (!confirm("Are you sure you want to delete this question?")) return;
     try {
       const res = await fetch(`/api/admin/quizzes/${id}`, { method: "DELETE" });
+
       if (res.ok) {
         showFeedback("success", "Question deleted");
         fetchQuestions();
@@ -149,7 +165,11 @@ export default function ManageQuestionsPage() {
               : "bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]"
           }`}
         >
-          {feedback.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+          {feedback.type === "success" ? (
+            <CheckCircle2 size={18} />
+          ) : (
+            <AlertCircle size={18} />
+          )}
           <span>{feedback.message}</span>
         </div>
       )}
@@ -158,19 +178,22 @@ export default function ManageQuestionsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">Quiz Questions</h1>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">
+              Quiz Questions
+            </h1>
             <span className="rounded-full bg-[#10B981]/15 px-2.5 py-0.5 text-xs font-bold text-[#059669]">
               Assessment Bank
             </span>
           </div>
           <p className="mt-1 text-sm text-[#64748B]">
-            Create and manage standardized disaster preparedness knowledge verification questions.
+            Create and manage standardized disaster preparedness knowledge
+            verification questions.
           </p>
         </div>
 
         <button
-          onClick={() => setShowAddModal(true)}
           className="flex items-center gap-2 rounded-xl bg-[#10B981] px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-[#059669] transition active:scale-98"
+          onClick={() => setShowAddModal(true)}
         >
           <Plus size={16} /> Add Question
         </button>
@@ -179,29 +202,35 @@ export default function ManageQuestionsPage() {
       {/* Questions List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white py-20 text-center shadow-2xs">
-          <RotateCw size={32} className="animate-spin text-[#10B981] mb-3" />
-          <p className="text-sm font-bold text-[#0F172A]">Loading assessment bank...</p>
+          <RotateCw className="animate-spin text-[#10B981] mb-3" size={32} />
+          <p className="text-sm font-bold text-[#0F172A]">
+            Loading assessment bank...
+          </p>
         </div>
       ) : questions.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#CBD5E1] bg-white py-20 text-center">
-          <HelpCircle size={40} className="text-[#94A3B8] mb-3" />
-          <h3 className="text-base font-bold text-[#0F172A]">No Questions Found</h3>
+          <HelpCircle className="text-[#94A3B8] mb-3" size={40} />
+          <h3 className="text-base font-bold text-[#0F172A]">
+            No Questions Found
+          </h3>
           <p className="mt-1 text-xs text-[#64748B] max-w-sm">
-            The question bank is currently empty. Click &quot;Add Question&quot; above to create one.
+            The question bank is currently empty. Click &quot;Add Question&quot;
+            above to create one.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {questions.map((q, qIdx) => {
             const isExp = expanded.includes(q.id);
+
             return (
               <div
                 key={q.id}
                 className="overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-2xs transition hover:border-[#CBD5E1]"
               >
                 <div
-                  onClick={() => toggleExpand(q.id)}
                   className="flex cursor-pointer items-center justify-between p-5 select-none"
+                  onClick={() => toggleExpand(q.id)}
                 >
                   <div className="flex items-start gap-3.5 pr-4">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#0F172A] text-xs font-black text-white">
@@ -213,33 +242,42 @@ export default function ManageQuestionsPage() {
                           {q.category}
                         </span>
                       </div>
-                      <h3 className="mt-1 text-sm font-bold text-[#0F172A] leading-snug">{q.text}</h3>
+                      <h3 className="mt-1 text-sm font-bold text-[#0F172A] leading-snug">
+                        {q.text}
+                      </h3>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
                     <button
+                      className="rounded-xl p-2 text-[#DC2626] hover:bg-[#FEF2F2] transition"
+                      title="Delete Question"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteQuestion(q.id);
                       }}
-                      className="rounded-xl p-2 text-[#DC2626] hover:bg-[#FEF2F2] transition"
-                      title="Delete Question"
                     >
                       <Trash2 size={15} />
                     </button>
                     <span className="text-[#94A3B8]">
-                      {isExp ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      {isExp ? (
+                        <ChevronUp size={18} />
+                      ) : (
+                        <ChevronDown size={18} />
+                      )}
                     </span>
                   </div>
                 </div>
 
                 {isExp && (
                   <div className="border-t border-[#F1F5F9] bg-[#F8FAFC] p-5 space-y-3">
-                    <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Answer Options</p>
+                    <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+                      Answer Options
+                    </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {q.options.map((opt, idx) => {
                         const isCorrect = idx === q.correctAnswerIndex;
+
                         return (
                           <div
                             key={idx}
@@ -250,10 +288,17 @@ export default function ManageQuestionsPage() {
                             }`}
                           >
                             <div className="flex items-center gap-2">
-                              <span className="font-black text-[#64748B]">{String.fromCharCode(65 + idx)}.</span>
+                              <span className="font-black text-[#64748B]">
+                                {String.fromCharCode(65 + idx)}.
+                              </span>
                               <span>{opt}</span>
                             </div>
-                            {isCorrect && <CheckCircle2 size={16} className="text-[#10B981] shrink-0" />}
+                            {isCorrect && (
+                              <CheckCircle2
+                                className="text-[#10B981] shrink-0"
+                                size={16}
+                              />
+                            )}
                           </div>
                         );
                       })}
@@ -261,7 +306,9 @@ export default function ManageQuestionsPage() {
 
                     {q.explanation && (
                       <div className="rounded-2xl bg-white p-3.5 border border-[#E2E8F0] text-xs text-[#475569] leading-relaxed">
-                        <span className="font-bold text-[#0F172A]">Explanation: </span>
+                        <span className="font-bold text-[#0F172A]">
+                          Explanation:{" "}
+                        </span>
                         {q.explanation}
                       </div>
                     )}
@@ -280,25 +327,35 @@ export default function ManageQuestionsPage() {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-[#E2E8F0] bg-white px-6 py-4 shrink-0">
               <div>
-                <h3 className="text-base sm:text-lg font-black text-[#0F172A]">Add Assessment Question</h3>
-                <p className="text-xs text-[#64748B]">Insert a multiple-choice question into the quiz system</p>
+                <h3 className="text-base sm:text-lg font-black text-[#0F172A]">
+                  Add Assessment Question
+                </h3>
+                <p className="text-xs text-[#64748B]">
+                  Insert a multiple-choice question into the quiz system
+                </p>
               </div>
               <button
-                onClick={() => setShowAddModal(false)}
                 className="rounded-full p-2 text-[#94A3B8] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition"
+                onClick={() => setShowAddModal(false)}
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Scrollable Form Body */}
-            <form id="question-form" onSubmit={handleAddQuestion} className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+            <form
+              className="flex-1 overflow-y-auto px-6 py-5 space-y-4"
+              id="question-form"
+              onSubmit={handleAddQuestion}
+            >
               <div>
-                <label className="text-xs font-bold text-[#334155]">Disaster Category <span className="text-[#DC2626]">*</span></label>
+                <label className="text-xs font-bold text-[#334155]">
+                  Disaster Category <span className="text-[#DC2626]">*</span>
+                </label>
                 <select
+                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none"
                 >
                   <option value="Earthquake">Earthquake</option>
                   <option value="Flood">Flood</option>
@@ -310,68 +367,80 @@ export default function ManageQuestionsPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#334155]">Question Text <span className="text-[#DC2626]">*</span></label>
+                <label className="text-xs font-bold text-[#334155]">
+                  Question Text <span className="text-[#DC2626]">*</span>
+                </label>
                 <input
-                  type="text"
                   required
+                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none"
+                  placeholder="e.g. What is the PASS method for operating a fire extinguisher?"
+                  type="text"
                   value={newText}
                   onChange={(e) => setNewText(e.target.value)}
-                  placeholder="e.g. What is the PASS method for operating a fire extinguisher?"
-                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-bold text-[#334155]">Option A <span className="text-[#DC2626]">*</span></label>
+                  <label className="text-xs font-bold text-[#334155]">
+                    Option A <span className="text-[#DC2626]">*</span>
+                  </label>
                   <input
-                    type="text"
                     required
+                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
+                    placeholder="First option"
+                    type="text"
                     value={optA}
                     onChange={(e) => setOptA(e.target.value)}
-                    placeholder="First option"
-                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-[#334155]">Option B <span className="text-[#DC2626]">*</span></label>
+                  <label className="text-xs font-bold text-[#334155]">
+                    Option B <span className="text-[#DC2626]">*</span>
+                  </label>
                   <input
-                    type="text"
                     required
+                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
+                    placeholder="Second option"
+                    type="text"
                     value={optB}
                     onChange={(e) => setOptB(e.target.value)}
-                    placeholder="Second option"
-                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-[#334155]">Option C</label>
+                  <label className="text-xs font-bold text-[#334155]">
+                    Option C
+                  </label>
                   <input
+                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
+                    placeholder="Third option (optional)"
                     type="text"
                     value={optC}
                     onChange={(e) => setOptC(e.target.value)}
-                    placeholder="Third option (optional)"
-                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-[#334155]">Option D</label>
+                  <label className="text-xs font-bold text-[#334155]">
+                    Option D
+                  </label>
                   <input
+                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
+                    placeholder="Fourth option (optional)"
                     type="text"
                     value={optD}
                     onChange={(e) => setOptD(e.target.value)}
-                    placeholder="Fourth option (optional)"
-                    className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-2.5 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#334155]">Correct Option <span className="text-[#DC2626]">*</span></label>
+                <label className="text-xs font-bold text-[#334155]">
+                  Correct Option <span className="text-[#DC2626]">*</span>
+                </label>
                 <select
+                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-bold text-[#059669] bg-[#ECFDF5] focus:border-[#10B981] focus:outline-none"
                   value={correctIdx}
                   onChange={(e) => setCorrectIdx(Number(e.target.value))}
-                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-bold text-[#059669] bg-[#ECFDF5] focus:border-[#10B981] focus:outline-none"
                 >
                   <option value={0}>Option A (Correct)</option>
                   <option value={1}>Option B (Correct)</option>
@@ -381,13 +450,15 @@ export default function ManageQuestionsPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-[#334155]">Explanation / Life-Saving Rationale</label>
+                <label className="text-xs font-bold text-[#334155]">
+                  Explanation / Life-Saving Rationale
+                </label>
                 <textarea
+                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none resize-y max-h-36 overflow-y-auto"
+                  placeholder="Explain why this answer is correct and key survival takeaways..."
+                  rows={3}
                   value={newExplanation}
                   onChange={(e) => setNewExplanation(e.target.value)}
-                  placeholder="Explain why this answer is correct and key survival takeaways..."
-                  className="mt-1.5 w-full rounded-xl border border-[#CBD5E1] p-3 text-sm font-medium text-[#0F172A] focus:border-[#10B981] focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none resize-y max-h-36 overflow-y-auto"
-                  rows={3}
                 />
               </div>
             </form>
@@ -395,21 +466,22 @@ export default function ManageQuestionsPage() {
             {/* STICKY ALWAYS-VISIBLE FOOTER */}
             <div className="flex items-center justify-end gap-3 border-t border-[#E2E8F0] bg-[#F8FAFC] px-6 py-4 shrink-0">
               <button
+                className="rounded-xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-xs font-bold text-[#334155] hover:bg-[#F1F5F9] transition"
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="rounded-xl border border-[#CBD5E1] bg-white px-4 py-2.5 text-xs font-bold text-[#334155] hover:bg-[#F1F5F9] transition"
               >
                 Cancel
               </button>
               <button
-                type="submit"
-                form="question-form"
-                disabled={saving}
                 className="rounded-xl bg-[#10B981] px-6 py-2.5 text-xs font-bold text-white hover:bg-[#059669] shadow-sm disabled:opacity-50 flex items-center gap-1.5 transition active:scale-98"
+                disabled={saving}
+                form="question-form"
+                type="submit"
               >
                 {saving ? (
                   <>
-                    <RotateCw size={14} className="animate-spin" /> Saving Question...
+                    <RotateCw className="animate-spin" size={14} /> Saving
+                    Question...
                   </>
                 ) : (
                   "Save Question"

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+
 import { Loader2 } from "lucide-react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -42,7 +43,7 @@ export default function Button({
     >
       {loading ? (
         <>
-          <Loader2 size={18} className="animate-spin" />
+          <Loader2 className="animate-spin" size={18} />
           <span>Please wait…</span>
         </>
       ) : (

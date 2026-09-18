@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "resqlearn_super_secret_jwt_key_2026_safe_guard";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "resqlearn_super_secret_jwt_key_2026_safe_guard";
 const key = new TextEncoder().encode(JWT_SECRET);
 
 export interface UserTokenPayload {
@@ -18,9 +19,12 @@ export async function signToken(payload: UserTokenPayload): Promise<string> {
     .sign(key);
 }
 
-export async function verifyToken(token: string): Promise<UserTokenPayload | null> {
+export async function verifyToken(
+  token: string,
+): Promise<UserTokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, key);
+
     return payload as unknown as UserTokenPayload;
   } catch {
     return null;

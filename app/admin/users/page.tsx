@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, UserX, UserCheck, Trash2, Users, Shield, RotateCw } from "lucide-react";
+import { Search, UserX, UserCheck, Trash2, RotateCw } from "lucide-react";
 
 type User = {
   id: string;
@@ -19,8 +19,10 @@ export default function ManageUsersPage() {
   const fetchUsers = async () => {
     try {
       const res = await fetch("/api/admin/users");
+
       if (res.ok) {
         const data = await res.json();
+
         setUsers(data.users || []);
       }
     } catch (err) {
@@ -37,15 +39,17 @@ export default function ManageUsersPage() {
   const filteredUsers = users.filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+      u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
   const toggleStatus = async (id: string) => {
     // Optimistic UI update
     setUsers(
       users.map((u) =>
-        u.id === id ? { ...u, status: u.status === "Active" ? "Inactive" : "Active" } : u
-      )
+        u.id === id
+          ? { ...u, status: u.status === "Active" ? "Inactive" : "Active" }
+          : u,
+      ),
     );
     try {
       await fetch(`/api/admin/users/${id}/status`, { method: "PATCH" });
@@ -70,31 +74,40 @@ export default function ManageUsersPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">Manage Users</h1>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F172A]">
+              Manage Users
+            </h1>
             <span className="rounded-full bg-[#10B981]/15 px-2.5 py-0.5 text-xs font-bold text-[#059669]">
               {users.length} Users Registered
             </span>
           </div>
-          <p className="mt-1 text-sm text-[#64748B]">View, activate, deactivate, and manage platform user credentials.</p>
+          <p className="mt-1 text-sm text-[#64748B]">
+            View, activate, deactivate, and manage platform user credentials.
+          </p>
         </div>
       </div>
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]" size={18} />
+        <Search
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+          size={18}
+        />
         <input
-          type="text"
+          className="w-full rounded-2xl border border-[#CBD5E1] bg-white py-3 pl-11 pr-4 text-sm font-medium text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 shadow-2xs"
           placeholder="Search users by full name or email address..."
+          type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-2xl border border-[#CBD5E1] bg-white py-3 pl-11 pr-4 text-sm font-medium text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 shadow-2xs"
         />
       </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-[#E2E8F0] bg-white py-20 text-center shadow-2xs">
-          <RotateCw size={32} className="animate-spin text-[#10B981] mb-3" />
-          <p className="text-sm font-bold text-[#0F172A]">Loading users from Neon PostgreSQL...</p>
+          <RotateCw className="animate-spin text-[#10B981] mb-3" size={32} />
+          <p className="text-sm font-bold text-[#0F172A]">
+            Loading users from Neon PostgreSQL...
+          </p>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -109,7 +122,9 @@ export default function ManageUsersPage() {
                     {user.name ? user.name.charAt(0).toUpperCase() : "U"}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#0F172A]">{user.name}</p>
+                    <p className="text-sm font-bold text-[#0F172A]">
+                      {user.name}
+                    </p>
                     <p className="text-xs text-[#64748B]">{user.email}</p>
                   </div>
                 </div>
@@ -127,7 +142,9 @@ export default function ManageUsersPage() {
               <div className="mt-4 flex items-center justify-between border-t border-[#F1F5F9] pt-3">
                 <span
                   className={`flex items-center gap-1.5 text-xs font-bold ${
-                    user.status === "Active" ? "text-[#059669]" : "text-[#DC2626]"
+                    user.status === "Active"
+                      ? "text-[#059669]"
+                      : "text-[#DC2626]"
                   }`}
                 >
                   <span
@@ -139,16 +156,24 @@ export default function ManageUsersPage() {
                 </span>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => toggleStatus(user.id)}
                     className="rounded-xl p-2 text-[#64748B] hover:bg-[#F1F5F9] transition"
-                    title={user.status === "Active" ? "Deactivate User" : "Activate User"}
+                    title={
+                      user.status === "Active"
+                        ? "Deactivate User"
+                        : "Activate User"
+                    }
+                    onClick={() => toggleStatus(user.id)}
                   >
-                    {user.status === "Active" ? <UserX size={16} /> : <UserCheck size={16} />}
+                    {user.status === "Active" ? (
+                      <UserX size={16} />
+                    ) : (
+                      <UserCheck size={16} />
+                    )}
                   </button>
                   <button
-                    onClick={() => deleteUser(user.id)}
                     className="rounded-xl p-2 text-[#DC2626] hover:bg-[#FEF2F2] transition"
                     title="Delete User"
+                    onClick={() => deleteUser(user.id)}
                   >
                     <Trash2 size={16} />
                   </button>

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const session = await getSessionUser();
@@ -18,7 +19,7 @@ export async function GET(
        FROM resq_lessons l
        JOIN resq_courses c ON l.course_id = c.id
        WHERE ${isNumeric ? "(l.id = $1 OR l.lesson_id = $2)" : "l.lesson_id = $1"}`,
-      isNumeric ? [parseInt(id, 10), id] : [id]
+      isNumeric ? [parseInt(id, 10), id] : [id],
     );
 
     if (lessonRes.rows.length === 0) {
@@ -29,11 +30,13 @@ export async function GET(
 
     // Check if lesson is completed by user
     let isLessonCompleted = false;
+
     if (userId) {
       const lpRes = await query(
         "SELECT completed FROM resq_user_lesson_progress WHERE user_id = $1 AND lesson_id = $2",
-        [userId, lesson.id]
+        [userId, lesson.id],
       );
+
       isLessonCompleted = lpRes.rows[0]?.completed === true;
     }
 
@@ -45,7 +48,7 @@ export async function GET(
        LEFT JOIN resq_user_material_progress mp ON m.id = mp.material_id AND mp.user_id = $2
        WHERE m.lesson_id = $1
        ORDER BY m.order_index ASC, m.id ASC`,
-      [lesson.id, userId || 0]
+      [lesson.id, userId || 0],
     );
 
     return NextResponse.json({
@@ -57,6 +60,10 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Fetch lesson error:", error);
-    return NextResponse.json({ error: "Failed to fetch lesson" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch lesson" },
+      { status: 500 },
+    );
   }
 }

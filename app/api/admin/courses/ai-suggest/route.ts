@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { requireAdmin } from "@/lib/auth";
 import { AiSuggestCourseSchema } from "@/lib/validations/course";
 
@@ -9,35 +10,42 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
   if (d.includes("flood")) {
     return {
       title: topic || "Flood Safety & Preparedness Masterclass",
-      description: "Learn how to prepare for, respond to, and recover safely from seasonal and flash flood emergencies.",
+      description:
+        "Learn how to prepare for, respond to, and recover safely from seasonal and flash flood emergencies.",
       disasterType: "Flood",
       difficulty: "Beginner",
       estimatedDuration: "45 min",
       lessons: [
         {
           title: "Introduction to Floods & Hydrology Basics",
-          description: "Understanding flash floods, river floods, and early warning systems.",
-          content: "Floods are among the most frequent and destructive natural disasters globally. This lesson covers key risk factors, flood plain awareness, and vital early warnings issued by meteorological agencies.",
+          description:
+            "Understanding flash floods, river floods, and early warning systems.",
+          content:
+            "Floods are among the most frequent and destructive natural disasters globally. This lesson covers key risk factors, flood plain awareness, and vital early warnings issued by meteorological agencies.",
           type: "video",
           suggestedMaterials: [
             {
               title: "NWS Flood Safety & The Awesome Power Guide (PDF)",
               type: "PDF",
               url: "https://www.weather.gov/media/owp/oh/reachout/NWS_Floods_The_Awesome_Power.pdf",
-              description: "Official National Weather Service comprehensive handbook on flood risks, meteorology, and water power",
+              description:
+                "Official National Weather Service comprehensive handbook on flood risks, meteorology, and water power",
             },
             {
               title: "Floods 101 - National Geographic",
               type: "VIDEO",
               url: "https://www.youtube.com/watch?v=udRNUBHb4bU",
-              description: "Educational video on how flash floods develop within minutes",
+              description:
+                "Educational video on how flash floods develop within minutes",
             },
           ],
         },
         {
           title: "Flood Warning Signs & Community Alerts",
-          description: "Recognizing water level indicators and emergency siren signals.",
-          content: "Learn to read critical environmental triggers: rapid stream rise, water discoloration, and local municipal storm warning alerts.",
+          description:
+            "Recognizing water level indicators and emergency siren signals.",
+          content:
+            "Learn to read critical environmental triggers: rapid stream rise, water discoloration, and local municipal storm warning alerts.",
           type: "document",
           suggestedMaterials: [
             {
@@ -50,8 +58,10 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         },
         {
           title: "Flood Prevention & Property Protection",
-          description: "Sandbagging, sump pumps, and sealing critical entry points.",
-          content: "Practical steps to safeguard your home and workplace: elevating electrical components, using check valves, and temporary barrier installation.",
+          description:
+            "Sandbagging, sump pumps, and sealing critical entry points.",
+          content:
+            "Practical steps to safeguard your home and workplace: elevating electrical components, using check valves, and temporary barrier installation.",
           type: "document",
           suggestedMaterials: [
             {
@@ -65,7 +75,8 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         {
           title: "Before a Flood: Evacuation & Go-Bag Prep",
           description: "Building your 72-hour waterproof emergency kit.",
-          content: "Pack potable water (1 gal/person/day), waterproof document pouches, high-calorie ration bars, first aid supplies, and battery-powered radio.",
+          content:
+            "Pack potable water (1 gal/person/day), waterproof document pouches, high-calorie ration bars, first aid supplies, and battery-powered radio.",
           type: "document",
           suggestedMaterials: [
             {
@@ -79,7 +90,8 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         {
           title: "During a Flood: Turn Around, Don't Drown",
           description: "Vehicle safety and safe vertical evacuation.",
-          content: "Never walk, drive, or swim in floodwaters. Just 6 inches of water can knock an adult down, and 12-24 inches can sweep away passenger cars.",
+          content:
+            "Never walk, drive, or swim in floodwaters. Just 6 inches of water can knock an adult down, and 12-24 inches can sweep away passenger cars.",
           type: "video",
           suggestedMaterials: [
             {
@@ -92,15 +104,18 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         },
         {
           title: "After a Flood: Safe Cleanup & Mold Remediation",
-          description: "Returning home safely without electrical and bacterial hazards.",
-          content: "Check for structural damage before entering. Wear rubber boots and heavy gloves. Discard contaminated food and photograph damage for insurance.",
+          description:
+            "Returning home safely without electrical and bacterial hazards.",
+          content:
+            "Check for structural damage before entering. Wear rubber boots and heavy gloves. Discard contaminated food and photograph damage for insurance.",
           type: "document",
           suggestedMaterials: [
             {
               title: "Post-Flood Sanitation & Safety Guide",
               type: "WEBSITE",
               url: "https://www.ready.gov/floods",
-              description: "Verified guidelines for safe post-flood cleaning and sanitation",
+              description:
+                "Verified guidelines for safe post-flood cleaning and sanitation",
             },
           ],
         },
@@ -111,7 +126,8 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
   if (d.includes("earthquake")) {
     return {
       title: topic || "Earthquake Resilience & Survival Guide",
-      description: "Master seismic safety: Drop, Cover, and Hold On techniques, home reinforcement, and post-tremor response.",
+      description:
+        "Master seismic safety: Drop, Cover, and Hold On techniques, home reinforcement, and post-tremor response.",
       disasterType: "Earthquake",
       difficulty: "Beginner",
       estimatedDuration: "40 min",
@@ -119,14 +135,16 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         {
           title: "Earthquake Physics & Fault Line Hazards",
           description: "Understanding magnitude, epicenters, and liquefaction.",
-          content: "Overview of tectonic plate movements, foreshocks, mainshocks, and aftershocks.",
+          content:
+            "Overview of tectonic plate movements, foreshocks, mainshocks, and aftershocks.",
           type: "video",
           suggestedMaterials: [
             {
               title: "FEMA Earthquake Safety Checklist (PDF)",
               type: "PDF",
               url: "https://www.fema.gov/sites/default/files/2020-07/earthquake-safety-checklist.pdf",
-              description: "Official FEMA checklist for seismic home safety, retrofits, and emergency actions",
+              description:
+                "Official FEMA checklist for seismic home safety, retrofits, and emergency actions",
             },
             {
               title: "Earthquakes 101 - National Geographic",
@@ -138,8 +156,10 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         },
         {
           title: "Drop, Cover, and Hold On Protocol",
-          description: "The gold standard life-saving movement during active shaking.",
-          content: "Drop to hands and knees, cover head and neck under sturdy furniture, hold on until all motion ceases.",
+          description:
+            "The gold standard life-saving movement during active shaking.",
+          content:
+            "Drop to hands and knees, cover head and neck under sturdy furniture, hold on until all motion ceases.",
           type: "video",
           suggestedMaterials: [
             {
@@ -152,8 +172,10 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         },
         {
           title: "Securing Heavy Fixtures & Gas Lines",
-          description: "Preventing non-structural falling debris and secondary fires.",
-          content: "Anchor tall bookcases, strap water heaters, and locate your gas shutoff valve.",
+          description:
+            "Preventing non-structural falling debris and secondary fires.",
+          content:
+            "Anchor tall bookcases, strap water heaters, and locate your gas shutoff valve.",
           type: "document",
           suggestedMaterials: [
             {
@@ -166,8 +188,10 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
         },
         {
           title: "Post-Quake Inspection & Aftershock Safety",
-          description: "Checking gas lines, electrical hazards, and open-ground assembly.",
-          content: "Exit buildings carefully after shaking stops using stairs only. Never use elevators. Watch for downed power lines.",
+          description:
+            "Checking gas lines, electrical hazards, and open-ground assembly.",
+          content:
+            "Exit buildings carefully after shaking stops using stairs only. Never use elevators. Watch for downed power lines.",
           type: "document",
           suggestedMaterials: [
             {
@@ -185,15 +209,18 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
   if (d.includes("fire")) {
     return {
       title: topic || "Fire Safety & Campus Emergency Evacuation",
-      description: "Comprehensive fire prevention, PASS extinguisher technique, and smoke evasion protocols.",
+      description:
+        "Comprehensive fire prevention, PASS extinguisher technique, and smoke evasion protocols.",
       disasterType: "Fire",
       difficulty: "Beginner",
       estimatedDuration: "30 min",
       lessons: [
         {
           title: "Extinguisher Operation: The PASS Method",
-          description: "Class A, B, C, D, K fire extinguishers and rapid deployment.",
-          content: "Operate extinguishers with PASS: Pull pin, Aim at base, Squeeze trigger, Sweep side-to-side.",
+          description:
+            "Class A, B, C, D, K fire extinguishers and rapid deployment.",
+          content:
+            "Operate extinguishers with PASS: Pull pin, Aim at base, Squeeze trigger, Sweep side-to-side.",
           type: "video",
           suggestedMaterials: [
             {
@@ -206,21 +233,24 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
               title: "US Fire Administration Safety Guide (PDF)",
               type: "PDF",
               url: "https://www.usfa.fema.gov/downloads/pdf/publications/fa_298.pdf",
-              description: "Official federal guidelines on fire escape plans, prevention, and extinguisher deployment",
+              description:
+                "Official federal guidelines on fire escape plans, prevention, and extinguisher deployment",
             },
           ],
         },
         {
           title: "Smoke Inhalation Defense & Stairwell Evacuation",
           description: "Low crawling techniques and secondary emergency exits.",
-          content: "Toxic smoke rises. Crawl on hands and knees below the thermal layer. Never use elevators.",
+          content:
+            "Toxic smoke rises. Crawl on hands and knees below the thermal layer. Never use elevators.",
           type: "document",
           suggestedMaterials: [
             {
               title: "Building Fire Evacuation Guide",
               type: "WEBSITE",
               url: "https://www.ready.gov/home-fires",
-              description: "Residential and institutional fire safety protocols",
+              description:
+                "Residential and institutional fire safety protocols",
             },
           ],
         },
@@ -258,8 +288,10 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
       },
       {
         title: "Preparedness & Evacuation Planning",
-        description: "Formulating family emergency plans and assembling safety kits.",
-        content: "Detailed protocols for establishing communication channels, rendezvous points, and 72-hour supply kits.",
+        description:
+          "Formulating family emergency plans and assembling safety kits.",
+        content:
+          "Detailed protocols for establishing communication channels, rendezvous points, and 72-hour supply kits.",
         type: "document",
         suggestedMaterials: [
           {
@@ -272,8 +304,10 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
       },
       {
         title: `Immediate Action During ${disasterType}`,
-        description: "Life-saving maneuvers and critical decisions during active incident.",
-        content: "Prioritize personal safety, follow instructions from first responders, and avoid common dangerous misconceptions.",
+        description:
+          "Life-saving maneuvers and critical decisions during active incident.",
+        content:
+          "Prioritize personal safety, follow instructions from first responders, and avoid common dangerous misconceptions.",
         type: "video",
         suggestedMaterials: [
           {
@@ -287,7 +321,8 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
       {
         title: "Recovery, Relief & Psychological Support",
         description: "Re-entry protocols and community rehabilitation.",
-        content: "Guidelines on returning to affected zones, documenting property damage, preventing waterborne diseases, and seeking disaster assistance.",
+        content:
+          "Guidelines on returning to affected zones, documenting property damage, preventing waterborne diseases, and seeking disaster assistance.",
         type: "document",
         suggestedMaterials: [
           {
@@ -304,6 +339,7 @@ function getFallbackDisasterDraft(disasterType: string, topic: string) {
 
 export async function POST(request: Request) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -311,10 +347,11 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = AiSuggestCourseSchema.safeParse(body);
+
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message || "Validation failed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -366,16 +403,20 @@ Return STRICTLY a JSON object with this structure (no markdown fences, pure JSON
                 responseMimeType: "application/json",
               },
             }),
-          }
+          },
         );
 
         const geminiData = await geminiRes.json();
         const candidate = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+
         if (candidate) {
           draft = JSON.parse(candidate);
         }
       } catch (err) {
-        console.warn("Gemini API course suggestion failed, falling back to verified engine:", err);
+        console.warn(
+          "Gemini API course suggestion failed, falling back to verified engine:",
+          err,
+        );
       }
     }
 
@@ -386,10 +427,15 @@ Return STRICTLY a JSON object with this structure (no markdown fences, pure JSON
     return NextResponse.json({
       draft,
       isDraft: true,
-      message: "AI draft generated. Please review and approve before publishing.",
+      message:
+        "AI draft generated. Please review and approve before publishing.",
     });
   } catch (error: any) {
     console.error("AI course suggest error:", error);
-    return NextResponse.json({ error: "Failed to generate course suggestion" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to generate course suggestion" },
+      { status: 500 },
+    );
   }
 }

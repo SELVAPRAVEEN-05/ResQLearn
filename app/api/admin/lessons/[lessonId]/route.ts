@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
-import { LessonUpdateSchema, detectMaterialTypeFromUrl } from "@/lib/validations/course";
+import {
+  LessonUpdateSchema,
+  detectMaterialTypeFromUrl,
+} from "@/lib/validations/course";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ lessonId: string }> }
+  { params }: { params: Promise<{ lessonId: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -22,7 +27,7 @@ export async function GET(
               created_at as "createdAt", updated_at as "updatedAt"
        FROM resq_lessons
        WHERE ${isNumeric ? "id = $1 OR lesson_id = $2" : "lesson_id = $1"}`,
-      isNumeric ? [parseInt(lessonId, 10), lessonId] : [lessonId]
+      isNumeric ? [parseInt(lessonId, 10), lessonId] : [lessonId],
     );
 
     if (existingRes.rows.length === 0) {
@@ -36,7 +41,7 @@ export async function GET(
        FROM resq_materials
        WHERE lesson_id = $1
        ORDER BY order_index ASC, id ASC`,
-      [lesson.id]
+      [lesson.id],
     );
 
     const materials = matsRes.rows;
@@ -53,15 +58,20 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Admin get lesson error:", error);
-    return NextResponse.json({ error: "Failed to fetch lesson" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch lesson" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ lessonId: string }> }
+  { params }: { params: Promise<{ lessonId: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -72,7 +82,7 @@ export async function PUT(
     const isNumeric = /^\d+$/.test(lessonId);
     const existingRes = await query(
       `SELECT id, course_id, title FROM resq_lessons WHERE ${isNumeric ? "id = $1 OR lesson_id = $2" : "lesson_id = $1"}`,
-      isNumeric ? [parseInt(lessonId, 10), lessonId] : [lessonId]
+      isNumeric ? [parseInt(lessonId, 10), lessonId] : [lessonId],
     );
 
     if (existingRes.rows.length === 0) {
@@ -82,14 +92,25 @@ export async function PUT(
     const targetId = existingRes.rows[0].id;
     const body = await request.json();
     const parsed = LessonUpdateSchema.safeParse(body);
+
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message || "Validation failed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const { title, description, content, type, order, published, videoUrl, resourceUrl, duration } = parsed.data;
+    const {
+      title,
+      description,
+      content,
+      type,
+      order,
+      published,
+      videoUrl,
+      resourceUrl,
+      duration,
+    } = parsed.data;
 
     await query(
       `UPDATE resq_lessons
@@ -109,7 +130,7 @@ export async function PUT(
         order !== undefined ? order : null,
         published !== undefined ? published : null,
         targetId,
-      ]
+      ],
     );
 
     // Sync Video Material if videoUrl was passed in payload
@@ -117,32 +138,40 @@ export async function PUT(
       const trimmedVideo = videoUrl.trim();
       const existingVideo = await query(
         `SELECT id FROM resq_materials WHERE lesson_id = $1 AND type = 'VIDEO' ORDER BY id ASC LIMIT 1`,
-        [targetId]
+        [targetId],
       );
 
       if (trimmedVideo) {
         if (existingVideo.rows.length > 0) {
           await query(
             `UPDATE resq_materials SET url = $1, title = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3`,
-            [trimmedVideo, `${title || existingRes.rows[0].title} - Video Tutorial`, existingVideo.rows[0].id]
+            [
+              trimmedVideo,
+              `${title || existingRes.rows[0].title} - Video Tutorial`,
+              existingVideo.rows[0].id,
+            ],
           );
         } else {
           await query(
             `INSERT INTO resq_materials (lesson_id, title, description, type, url, order_index, created_at, updated_at)
              VALUES ($1, $2, $3, 'VIDEO', $4, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [targetId, `${title || existingRes.rows[0].title} - Video Tutorial`, "Interactive Video Lesson", trimmedVideo]
+            [
+              targetId,
+              `${title || existingRes.rows[0].title} - Video Tutorial`,
+              "Interactive Video Lesson",
+              trimmedVideo,
+            ],
           );
         }
       } else if (existingVideo.rows.length > 0) {
         // If explicitly set to empty string, delete the material and its progress
         await query(
           `DELETE FROM resq_user_material_progress WHERE material_id = $1`,
-          [existingVideo.rows[0].id]
+          [existingVideo.rows[0].id],
         );
-        await query(
-          `DELETE FROM resq_materials WHERE id = $1`,
-          [existingVideo.rows[0].id]
-        );
+        await query(`DELETE FROM resq_materials WHERE id = $1`, [
+          existingVideo.rows[0].id,
+        ]);
       }
     }
 
@@ -151,33 +180,44 @@ export async function PUT(
       const trimmedResource = resourceUrl.trim();
       const existingResource = await query(
         `SELECT id FROM resq_materials WHERE lesson_id = $1 AND type != 'VIDEO' ORDER BY id ASC LIMIT 1`,
-        [targetId]
+        [targetId],
       );
 
       if (trimmedResource) {
         const detectedType = detectMaterialTypeFromUrl(trimmedResource);
+
         if (existingResource.rows.length > 0) {
           await query(
             `UPDATE resq_materials SET url = $1, type = $2, title = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $4`,
-            [trimmedResource, detectedType, `${title || existingRes.rows[0].title} - Study Guide & Resource`, existingResource.rows[0].id]
+            [
+              trimmedResource,
+              detectedType,
+              `${title || existingRes.rows[0].title} - Study Guide & Resource`,
+              existingResource.rows[0].id,
+            ],
           );
         } else {
           await query(
             `INSERT INTO resq_materials (lesson_id, title, description, type, url, order_index, created_at, updated_at)
              VALUES ($1, $2, $3, $4, $5, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-            [targetId, `${title || existingRes.rows[0].title} - Study Guide & Resource`, "Educational Reference Material", detectedType, trimmedResource]
+            [
+              targetId,
+              `${title || existingRes.rows[0].title} - Study Guide & Resource`,
+              "Educational Reference Material",
+              detectedType,
+              trimmedResource,
+            ],
           );
         }
       } else if (existingResource.rows.length > 0) {
         // If explicitly set to empty string, delete the material and its progress
         await query(
           `DELETE FROM resq_user_material_progress WHERE material_id = $1`,
-          [existingResource.rows[0].id]
+          [existingResource.rows[0].id],
         );
-        await query(
-          `DELETE FROM resq_materials WHERE id = $1`,
-          [existingResource.rows[0].id]
-        );
+        await query(`DELETE FROM resq_materials WHERE id = $1`, [
+          existingResource.rows[0].id,
+        ]);
       }
     }
 
@@ -188,7 +228,7 @@ export async function PUT(
               created_at as "createdAt", updated_at as "updatedAt"
        FROM resq_lessons
        WHERE id = $1`,
-      [targetId]
+      [targetId],
     );
 
     const matsRes = await query(
@@ -197,7 +237,7 @@ export async function PUT(
        FROM resq_materials
        WHERE lesson_id = $1
        ORDER BY order_index ASC, id ASC`,
-      [targetId]
+      [targetId],
     );
 
     const materials = matsRes.rows;
@@ -216,15 +256,20 @@ export async function PUT(
     });
   } catch (error: any) {
     console.error("Update lesson error:", error);
-    return NextResponse.json({ error: "Failed to update lesson" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to update lesson" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ lessonId: string }> }
+  { params }: { params: Promise<{ lessonId: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -235,7 +280,7 @@ export async function DELETE(
     const isNumeric = /^\d+$/.test(lessonId);
     const existingRes = await query(
       `SELECT id FROM resq_lessons WHERE ${isNumeric ? "id = $1 OR lesson_id = $2" : "lesson_id = $1"}`,
-      isNumeric ? [parseInt(lessonId, 10), lessonId] : [lessonId]
+      isNumeric ? [parseInt(lessonId, 10), lessonId] : [lessonId],
     );
 
     if (existingRes.rows.length === 0) {
@@ -247,24 +292,21 @@ export async function DELETE(
     // Relational cleanup
     await query(
       `DELETE FROM resq_user_material_progress WHERE material_id IN (SELECT id FROM resq_materials WHERE lesson_id = $1)`,
-      [targetId]
+      [targetId],
     );
-    await query(
-      `DELETE FROM resq_user_lesson_progress WHERE lesson_id = $1`,
-      [targetId]
-    );
-    await query(
-      `DELETE FROM resq_materials WHERE lesson_id = $1`,
-      [targetId]
-    );
-    await query(
-      `DELETE FROM resq_lessons WHERE id = $1`,
-      [targetId]
-    );
+    await query(`DELETE FROM resq_user_lesson_progress WHERE lesson_id = $1`, [
+      targetId,
+    ]);
+    await query(`DELETE FROM resq_materials WHERE lesson_id = $1`, [targetId]);
+    await query(`DELETE FROM resq_lessons WHERE id = $1`, [targetId]);
 
     return NextResponse.json({ message: "Lesson deleted successfully" });
   } catch (error: any) {
     console.error("Delete lesson error:", error);
-    return NextResponse.json({ error: "Failed to delete lesson" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to delete lesson" },
+      { status: 500 },
+    );
   }
 }

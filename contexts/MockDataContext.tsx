@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 export type Lesson = {
   id: string | number;
@@ -78,10 +84,24 @@ type DataContextType = {
   profile: StudentProfile;
   quizAttempts: QuizAttempt[];
   isLoading: boolean;
-  markLessonComplete: (courseSlug: string, lessonId: string | number) => Promise<void>;
-  submitQuiz: (quizSlug: string, score: number, total: number, answers?: any) => Promise<string>;
+  markLessonComplete: (
+    courseSlug: string,
+    lessonId: string | number,
+  ) => Promise<void>;
+  submitQuiz: (
+    quizSlug: string,
+    score: number,
+    total: number,
+    answers?: any,
+  ) => Promise<string>;
   markAlertRead: (alertId: string) => Promise<void>;
-  updateProfile: (name: string, email: string, avatar?: string, institution?: string, department?: string) => Promise<void>;
+  updateProfile: (
+    name: string,
+    email: string,
+    avatar?: string,
+    institution?: string,
+    department?: string,
+  ) => Promise<void>;
   addCourse: (course: Course) => Promise<void>;
   refreshData: () => Promise<void>;
 };
@@ -104,13 +124,14 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
   const fetchAllData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [coursesRes, quizzesRes, alertsRes, profileRes, historyRes] = await Promise.allSettled([
-        fetch("/api/courses").then((r) => (r.ok ? r.json() : null)),
-        fetch("/api/quizzes").then((r) => (r.ok ? r.json() : null)),
-        fetch("/api/alerts").then((r) => (r.ok ? r.json() : null)),
-        fetch("/api/user/profile").then((r) => (r.ok ? r.json() : null)),
-        fetch("/api/quizzes/history").then((r) => (r.ok ? r.json() : null)),
-      ]);
+      const [coursesRes, quizzesRes, alertsRes, profileRes, historyRes] =
+        await Promise.allSettled([
+          fetch("/api/courses").then((r) => (r.ok ? r.json() : null)),
+          fetch("/api/quizzes").then((r) => (r.ok ? r.json() : null)),
+          fetch("/api/alerts").then((r) => (r.ok ? r.json() : null)),
+          fetch("/api/user/profile").then((r) => (r.ok ? r.json() : null)),
+          fetch("/api/quizzes/history").then((r) => (r.ok ? r.json() : null)),
+        ]);
 
       if (coursesRes.status === "fulfilled" && coursesRes.value?.courses) {
         setCourses(coursesRes.value.courses);
@@ -123,6 +144,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
       }
       if (profileRes.status === "fulfilled" && profileRes.value?.profile) {
         const p = profileRes.value.profile;
+
         setProfile({
           name: p.name || "",
           email: p.email || "",
@@ -145,7 +167,10 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     fetchAllData();
   }, [fetchAllData]);
 
-  const markLessonComplete = async (courseSlug: string, lessonId: string | number) => {
+  const markLessonComplete = async (
+    courseSlug: string,
+    lessonId: string | number,
+  ) => {
     // Optimistic UI update
     setCourses((prevCourses) =>
       prevCourses.map((course) => {
@@ -155,25 +180,36 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         let completedCount = 0;
 
         const updatedLessons = course.lessons.map((lesson) => {
-          if (String(lesson.id) === String(lessonId) || lesson.lessonId === String(lessonId)) {
+          if (
+            String(lesson.id) === String(lessonId) ||
+            lesson.lessonId === String(lessonId)
+          ) {
             foundCurrent = true;
             completedCount++;
+
             return { ...lesson, status: "completed" as const };
           }
           if (lesson.status === "completed") {
             completedCount++;
+
             return lesson;
           }
           if (foundCurrent && lesson.status === "locked") {
             foundCurrent = false;
+
             return { ...lesson, status: "in-progress" as const };
           }
+
           return lesson;
         });
 
-        const progress = course.lessons.length > 0 ? Math.round((completedCount / course.lessons.length) * 100) : 100;
+        const progress =
+          course.lessons.length > 0
+            ? Math.round((completedCount / course.lessons.length) * 100)
+            : 100;
+
         return { ...course, lessons: updatedLessons, progress };
-      })
+      }),
     );
 
     // Call real API
@@ -182,8 +218,10 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         method: "POST",
       });
       const profRes = await fetch("/api/user/profile");
+
       if (profRes.ok) {
         const data = await profRes.json();
+
         if (data.profile) {
           setProfile((prev) => ({
             ...prev,
@@ -197,7 +235,12 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const submitQuiz = async (quizSlug: string, score: number, total: number, answers?: any): Promise<string> => {
+  const submitQuiz = async (
+    quizSlug: string,
+    score: number,
+    total: number,
+    answers?: any,
+  ): Promise<string> => {
     const attemptId = `attempt_${Date.now()}`;
     const quiz = quizzes.find((q) => q.slug === quizSlug);
 
@@ -218,12 +261,18 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ score, total, answers }),
       });
+
       if (res.ok) {
         const data = await res.json();
+
         setProfile((prev) => ({
           ...prev,
-          preparednessScore: Math.min(100, prev.preparednessScore + (score / total >= 0.7 ? 10 : 3)),
+          preparednessScore: Math.min(
+            100,
+            prev.preparednessScore + (score / total >= 0.7 ? 10 : 3),
+          ),
         }));
+
         return data.attemptId || attemptId;
       }
     } catch (e) {
@@ -234,7 +283,9 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
   };
 
   const markAlertRead = async (alertId: string) => {
-    setAlerts((prev) => prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)));
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === alertId ? { ...a, read: true } : a)),
+    );
     try {
       await fetch(`/api/alerts/${alertId}/read`, { method: "POST" });
     } catch (e) {
@@ -247,7 +298,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     email: string,
     avatar?: string,
     institution?: string,
-    department?: string
+    department?: string,
   ) => {
     setProfile((prev) => ({ ...prev, name, email, avatar }));
     try {
@@ -298,8 +349,10 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
 
 export function useMockData() {
   const context = useContext(MockDataContext);
+
   if (context === undefined) {
     throw new Error("useMockData must be used within a MockDataProvider");
   }
+
   return context;
 }

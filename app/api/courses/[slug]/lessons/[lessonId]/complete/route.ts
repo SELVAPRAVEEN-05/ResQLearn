@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ slug: string; lessonId: string }> }
+  { params }: { params: Promise<{ slug: string; lessonId: string }> },
 ) {
   const { slug, lessonId } = await params;
   const session = await getSessionUser();
+
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized. Please log in." },
+      { status: 401 },
+    );
   }
   const userId = session.id;
 
@@ -17,7 +22,7 @@ export async function POST(
     const isCourseNumeric = /^\d+$/.test(slug);
     const courseRes = await query(
       `SELECT id FROM resq_courses WHERE ${isCourseNumeric ? "id = $1 OR slug = $2" : "slug = $1"}`,
-      isCourseNumeric ? [parseInt(slug, 10), slug] : [slug]
+      isCourseNumeric ? [parseInt(slug, 10), slug] : [slug],
     );
 
     if (courseRes.rows.length === 0) {
@@ -30,11 +35,16 @@ export async function POST(
     const isLessonNumeric = /^\d+$/.test(lessonId);
     const lessonRes = await query(
       `SELECT id, lesson_id FROM resq_lessons WHERE course_id = $1 AND ${isLessonNumeric ? "id = $2 OR lesson_id = $3" : "lesson_id = $2"}`,
-      isLessonNumeric ? [courseId, parseInt(lessonId, 10), lessonId] : [courseId, lessonId]
+      isLessonNumeric
+        ? [courseId, parseInt(lessonId, 10), lessonId]
+        : [courseId, lessonId],
     );
 
     if (lessonRes.rows.length === 0) {
-      return NextResponse.json({ error: "Lesson not found in this course" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Lesson not found in this course" },
+        { status: 404 },
+      );
     }
 
     const actualLessonDbId = lessonRes.rows[0].id;
@@ -48,24 +58,28 @@ export async function POST(
          completed = TRUE,
          completed_at = CURRENT_TIMESTAMP,
          updated_at = CURRENT_TIMESTAMP`,
-      [userId, actualLessonDbId]
+      [userId, actualLessonDbId],
     );
 
     // 2. Get total published lessons for this course
     const allLessonsRes = await query(
       "SELECT id, lesson_id FROM resq_lessons WHERE course_id = $1 AND is_published = TRUE",
-      [courseId]
+      [courseId],
     );
     const totalLessons = allLessonsRes.rows.length;
 
     // 3. Get current completed list from course progress
     const progRes = await query(
       "SELECT completed_lesson_ids FROM resq_user_course_progress WHERE user_id = $1 AND course_id = $2",
-      [userId, courseId]
+      [userId, courseId],
     );
 
     let completedIds: string[] = [];
-    if (progRes.rows.length > 0 && Array.isArray(progRes.rows[0].completed_lesson_ids)) {
+
+    if (
+      progRes.rows.length > 0 &&
+      Array.isArray(progRes.rows[0].completed_lesson_ids)
+    ) {
       completedIds = progRes.rows[0].completed_lesson_ids;
     }
 
@@ -79,10 +93,15 @@ export async function POST(
 
     // Count unique completed lessons matching this course's lessons
     const completedLessonCount = allLessonsRes.rows.filter(
-      (l) => completedIds.includes(String(l.id)) || completedIds.includes(l.lesson_id)
+      (l) =>
+        completedIds.includes(String(l.id)) ||
+        completedIds.includes(l.lesson_id),
     ).length;
 
-    const progressPercent = totalLessons > 0 ? Math.min(100, Math.round((completedLessonCount / totalLessons) * 100)) : 100;
+    const progressPercent =
+      totalLessons > 0
+        ? Math.min(100, Math.round((completedLessonCount / totalLessons) * 100))
+        : 100;
     const isCompleted = progressPercent === 100;
     const status = isCompleted ? "completed" : "in-progress";
 
@@ -97,7 +116,15 @@ export async function POST(
          last_accessed_lesson_id = EXCLUDED.last_accessed_lesson_id,
          completed_at = CASE WHEN EXCLUDED.completed = TRUE THEN CURRENT_TIMESTAMP ELSE resq_user_course_progress.completed_at END,
          updated_at = CURRENT_TIMESTAMP`,
-      [userId, courseId, progressPercent, status, isCompleted, JSON.stringify(completedIds), String(actualLessonDbId)]
+      [
+        userId,
+        courseId,
+        progressPercent,
+        status,
+        isCompleted,
+        JSON.stringify(completedIds),
+        String(actualLessonDbId),
+      ],
     );
 
     // 4. Boost student preparedness score
@@ -107,12 +134,12 @@ export async function POST(
          SET preparedness_score = LEAST(100, preparedness_score + 15),
              certificates = certificates + 1
          WHERE id = $1`,
-        [userId]
+        [userId],
       );
     } else {
       await query(
         `UPDATE resq_users SET preparedness_score = LEAST(100, preparedness_score + 2) WHERE id = $1`,
-        [userId]
+        [userId],
       );
     }
 
@@ -124,6 +151,10 @@ export async function POST(
     });
   } catch (error: any) {
     console.error("Complete lesson error:", error);
-    return NextResponse.json({ error: "Failed to complete lesson" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to complete lesson" },
+      { status: 500 },
+    );
   }
 }

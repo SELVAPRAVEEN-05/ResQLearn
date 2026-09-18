@@ -1,4 +1,12 @@
-import { AlertTriangle, ArrowLeft, Droplet, Flame, Waves, Factory, ChevronRight } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Droplet,
+  Flame,
+  Waves,
+  Factory,
+  ChevronRight,
+} from "lucide-react";
 import Link from "next/link";
 
 const riskBreakdown = [
@@ -9,7 +17,8 @@ const riskBreakdown = [
     accent: "#F97316",
     pillBg: "#FEF3C7",
     pillText: "#B45309",
-    description: "Moderate risk due to impending weather system. Areas near the river are highly susceptible.",
+    description:
+      "Moderate risk due to impending weather system. Areas near the river are highly susceptible.",
   },
   {
     title: "Wildfire",
@@ -18,7 +27,8 @@ const riskBreakdown = [
     accent: "#10B981",
     pillBg: "#D1FAE5",
     pillText: "#047857",
-    description: "Low risk. Recent rainfall has mitigated dry conditions in surrounding forests.",
+    description:
+      "Low risk. Recent rainfall has mitigated dry conditions in surrounding forests.",
   },
   {
     title: "Earthquake",
@@ -27,7 +37,8 @@ const riskBreakdown = [
     accent: "#10B981",
     pillBg: "#D1FAE5",
     pillText: "#047857",
-    description: "Baseline tectonic activity. No immediate anomalous readings detected.",
+    description:
+      "Baseline tectonic activity. No immediate anomalous readings detected.",
   },
 ];
 
@@ -54,8 +65,8 @@ export default function RiskAnalysisPage() {
       {/* Header */}
       <div className="space-y-4">
         <Link
-          href="/user/dashboard"
           className="inline-flex items-center gap-2 text-sm font-semibold text-[#111827] transition hover:text-[#10B981]"
+          href="/user/dashboard"
         >
           <ArrowLeft size={18} />
           Back to Dashboard
@@ -64,7 +75,9 @@ export default function RiskAnalysisPage() {
           <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#FEE2E2] text-[#DC2626]">
             <AlertTriangle size={24} />
           </span>
-          <h1 className="mt-4 text-xl font-bold text-[#111827]">Local Risk Analysis</h1>
+          <h1 className="mt-4 text-xl font-bold text-[#111827]">
+            Local Risk Analysis
+          </h1>
           <p className="mt-2 text-sm leading-6 text-[#6B7280]">
             Current risk assessment for your registered location.
           </p>
@@ -87,11 +100,15 @@ export default function RiskAnalysisPage() {
           <span className="font-semibold text-[#EA580C]">Moderate</span>
         </div>
         <div className="mt-2 h-2 rounded-full bg-[#F3F4F6]">
-          <div className="h-2 rounded-full bg-[#EA580C]" style={{ width: "55%" }} />
+          <div
+            className="h-2 rounded-full bg-[#EA580C]"
+            style={{ width: "55%" }}
+          />
         </div>
 
         <p className="mt-4 text-sm leading-6 text-[#6B7280]">
-          Active flood warnings in low-lying coastal areas due to expected storm surge.
+          Active flood warnings in low-lying coastal areas due to expected storm
+          surge.
         </p>
       </div>
 
@@ -101,6 +118,7 @@ export default function RiskAnalysisPage() {
         <div className="mt-3 space-y-3">
           {riskBreakdown.map((item) => {
             const Icon = item.icon;
+
             return (
               <div
                 key={item.title}
@@ -110,16 +128,23 @@ export default function RiskAnalysisPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Icon size={16} style={{ color: item.accent }} />
-                    <p className="text-sm font-semibold text-[#111827]">{item.title}</p>
+                    <p className="text-sm font-semibold text-[#111827]">
+                      {item.title}
+                    </p>
                   </div>
                   <span
                     className="rounded-full px-3 py-1 text-xs font-semibold"
-                    style={{ backgroundColor: item.pillBg, color: item.pillText }}
+                    style={{
+                      backgroundColor: item.pillBg,
+                      color: item.pillText,
+                    }}
                   >
                     {item.probability}
                   </span>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[#6B7280]">{item.description}</p>
+                <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+                  {item.description}
+                </p>
               </div>
             );
           })}
@@ -128,10 +153,13 @@ export default function RiskAnalysisPage() {
 
       {/* Nearby infrastructure risks */}
       <div>
-        <h2 className="text-lg font-bold text-[#111827]">Nearby Infrastructure Risks</h2>
+        <h2 className="text-lg font-bold text-[#111827]">
+          Nearby Infrastructure Risks
+        </h2>
         <div className="mt-3 divide-y divide-[#E5E7EB] rounded-2xl border border-[#E5E7EB] bg-white shadow-sm">
           {infrastructure.map((item) => {
             const Icon = item.icon;
+
             return (
               <button
                 key={item.title}
@@ -140,16 +168,23 @@ export default function RiskAnalysisPage() {
                 <div className="flex items-center gap-3">
                   <span
                     className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                    style={{ backgroundColor: item.iconBg, color: item.iconColor }}
+                    style={{
+                      backgroundColor: item.iconBg,
+                      color: item.iconColor,
+                    }}
                   >
                     <Icon size={18} />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold text-[#111827]">{item.title}</p>
-                    <p className="mt-0.5 text-xs text-[#6B7280]">{item.subtitle}</p>
+                    <p className="text-sm font-semibold text-[#111827]">
+                      {item.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#6B7280]">
+                      {item.subtitle}
+                    </p>
                   </div>
                 </div>
-                <ChevronRight size={18} className="shrink-0 text-[#9CA3AF]" />
+                <ChevronRight className="shrink-0 text-[#9CA3AF]" size={18} />
               </button>
             );
           })}

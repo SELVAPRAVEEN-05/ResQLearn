@@ -10,6 +10,7 @@ import {
   HelpCircle,
   BarChart2,
   AlertTriangle,
+  Flame,
   LogOut,
   Menu,
   X,
@@ -17,8 +18,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import NotificationBell from "@/components/NotificationBell";
+
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Heatwave AI", href: "/admin/heatwave", icon: Flame },
   { label: "Manage Users", href: "/admin/users", icon: Users },
   { label: "Educational Content", href: "/admin/content", icon: BookOpen },
   { label: "Quiz Questions", href: "/admin/quiz-questions", icon: HelpCircle },
@@ -43,8 +47,9 @@ export default function AdminLayout({
 
   const getCurrentPageTitle = () => {
     const item = navItems.find((n) =>
-      n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href)
+      n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href),
     );
+
     return item?.label || "Admin Console";
   };
 
@@ -56,7 +61,7 @@ export default function AdminLayout({
           {/* Brand Logo Header */}
           <div className="flex items-center gap-3 px-6 py-5 border-b border-[#F1F5F9]">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#10B981] to-[#059669] text-white shadow-sm font-black text-sm">
-              <Shield size={20} className="text-white" />
+              <Shield className="text-white" size={20} />
             </div>
             <div>
               <p className="text-sm font-black tracking-tight text-[#0F172A] flex items-center gap-1.5">
@@ -65,7 +70,9 @@ export default function AdminLayout({
                   Admin
                 </span>
               </p>
-              <p className="text-[11px] font-medium text-[#64748B]">Emergency Control Panel</p>
+              <p className="text-[11px] font-medium text-[#64748B]">
+                Emergency Control Panel
+              </p>
             </div>
           </div>
 
@@ -84,12 +91,12 @@ export default function AdminLayout({
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all ${
                     isActive
                       ? "bg-[#10B981]/10 text-[#059669] shadow-2xs"
                       : "text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
                   }`}
+                  href={item.href}
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -120,14 +127,18 @@ export default function AdminLayout({
                 AD
               </div>
               <div className="overflow-hidden">
-                <p className="text-xs font-bold text-[#0F172A] truncate">Administrator</p>
-                <p className="text-[10px] text-[#64748B] truncate">admin@safegraph.ai</p>
+                <p className="text-xs font-bold text-[#0F172A] truncate">
+                  Administrator
+                </p>
+                <p className="text-[10px] text-[#64748B] truncate">
+                  admin@safegraph.ai
+                </p>
               </div>
             </div>
           </div>
           <button
-            onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#FEE2E2] bg-[#FEF2F2] px-3 py-2 text-xs font-bold text-[#DC2626] transition hover:bg-[#FEE2E2] active:scale-98"
+            onClick={handleLogout}
           >
             <LogOut size={14} /> Logout
           </button>
@@ -141,16 +152,21 @@ export default function AdminLayout({
           <div className="flex items-center gap-3">
             {/* Mobile Hamburger Toggle */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9]"
               aria-label="Toggle Menu"
+              className="md:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-[#E2E8F0] text-[#475569] hover:bg-[#F1F5F9]"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-[#64748B] hidden sm:inline">Admin</span>
-              <ChevronRight size={14} className="text-[#94A3B8] hidden sm:inline" />
+              <span className="text-xs font-bold text-[#64748B] hidden sm:inline">
+                Admin
+              </span>
+              <ChevronRight
+                className="text-[#94A3B8] hidden sm:inline"
+                size={14}
+              />
               <h2 className="text-sm sm:text-base font-black text-[#0F172A] tracking-tight">
                 {getCurrentPageTitle()}
               </h2>
@@ -162,9 +178,10 @@ export default function AdminLayout({
               <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
               Neon DB Active
             </span>
+            <NotificationBell role="admin" />
             <button
-              onClick={handleLogout}
               className="md:hidden flex items-center gap-1 text-xs font-bold text-[#DC2626] bg-[#FEF2F2] px-3 py-1.5 rounded-xl border border-[#FEE2E2]"
+              onClick={handleLogout}
             >
               <LogOut size={13} />
             </button>
@@ -181,11 +198,13 @@ export default function AdminLayout({
                     <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#10B981] text-white font-bold text-xs">
                       <Shield size={16} />
                     </div>
-                    <span className="font-bold text-sm text-[#0F172A]">SafeGraph Admin</span>
+                    <span className="font-bold text-sm text-[#0F172A]">
+                      SafeGraph Admin
+                    </span>
                   </div>
                   <button
-                    onClick={() => setMobileMenuOpen(false)}
                     className="p-1.5 rounded-lg text-[#64748B] hover:bg-[#F1F5F9]"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     <X size={18} />
                   </button>
@@ -202,13 +221,13 @@ export default function AdminLayout({
                     return (
                       <Link
                         key={item.href}
-                        href={item.href}
-                        onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition ${
                           isActive
                             ? "bg-[#10B981] text-white shadow-xs"
                             : "text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
                         }`}
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
                       >
                         <Icon size={16} />
                         <span>{item.label}</span>
@@ -220,8 +239,8 @@ export default function AdminLayout({
 
               <div className="pt-4 border-t border-[#E2E8F0]">
                 <button
-                  onClick={handleLogout}
                   className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#FEF2F2] border border-[#FEE2E2] px-4 py-2.5 text-xs font-bold text-[#DC2626]"
+                  onClick={handleLogout}
                 >
                   <LogOut size={14} /> Logout
                 </button>

@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser, getUserById } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function GET() {
   const session = await getSessionUser();
+
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const user = await getUserById(session.id);
+
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
@@ -18,6 +21,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   const session = await getSessionUser();
+
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -36,7 +40,7 @@ export async function PUT(request: Request) {
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $6
        RETURNING id, name, email, role, institution, department, year_of_study, preparedness_score, certificates, avatar, status`,
-      [name, institution, department, yearOfStudy, avatar, session.id]
+      [name, institution, department, yearOfStudy, avatar, session.id],
     );
 
     return NextResponse.json({
@@ -45,6 +49,10 @@ export async function PUT(request: Request) {
     });
   } catch (error: any) {
     console.error("Profile update error:", error);
-    return NextResponse.json({ error: "Failed to update profile." }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to update profile." },
+      { status: 500 },
+    );
   }
 }

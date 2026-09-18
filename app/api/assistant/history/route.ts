@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function GET() {
   const session = await getSessionUser();
+
   if (!session) {
     return NextResponse.json({ messages: [] });
   }
@@ -17,7 +19,7 @@ export async function GET() {
        WHERE user_id = $1
        ORDER BY created_at ASC
        LIMIT 50`,
-      [userId]
+      [userId],
     );
 
     return NextResponse.json({
@@ -25,6 +27,10 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error("Chat history error:", error);
-    return NextResponse.json({ error: "Failed to fetch chat history" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch chat history" },
+      { status: 500 },
+    );
   }
 }

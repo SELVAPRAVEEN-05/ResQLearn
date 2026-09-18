@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
@@ -14,7 +15,7 @@ export async function GET() {
        LEFT JOIN resq_user_alert_reads r ON a.id = r.alert_id AND r.user_id = $1
        WHERE a.is_active = TRUE
        ORDER BY a.created_at DESC`,
-      [userId]
+      [userId],
     );
 
     return NextResponse.json({
@@ -30,6 +31,10 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error("Alerts error:", error);
-    return NextResponse.json({ error: "Failed to fetch alerts" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch alerts" },
+      { status: 500 },
+    );
   }
 }

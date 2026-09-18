@@ -4,15 +4,15 @@ const RAW_DATABASE_URL =
   process.env.DATABASE_URL ||
   process.env.POSTGRES_URL ||
   process.env.POSTGRES_PRISMA_URL ||
-  "postgresql://neondb_owner:npg_DVlcze2Gt4iC@ep-rapid-bird-ae4xdzo8-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require";
+  "";
 
 // Sanitize connection string for node pg driver (strip channel_binding if present)
-const sanitizedConnectionString = RAW_DATABASE_URL
-  .replace(/[?&]channel_binding=[^&]+/g, "")
-  .replace(/[?&]sslmode=[^&]+/g, "");
+const sanitizedConnectionString = RAW_DATABASE_URL.replace(
+  /[?&]channel_binding=[^&]+/g,
+  "",
+).replace(/[?&]sslmode=[^&]+/g, "");
 
 declare global {
-  // eslint-disable-next-line no-var
   var _pgPool: Pool | undefined;
 }
 
@@ -36,7 +36,6 @@ if (!global._pgPool) {
 const pool: Pool = global._pgPool;
 
 export default pool;
-
 
 const INIT_DDL = `
   CREATE TABLE IF NOT EXISTS resq_users (
@@ -165,6 +164,13 @@ const INIT_DDL = `
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
   );
 
+  CREATE TABLE IF NOT EXISTS resq_user_alert_reads (
+    user_id INT NOT NULL REFERENCES resq_users(id) ON DELETE CASCADE,
+    alert_id INT NOT NULL REFERENCES resq_alerts(id) ON DELETE CASCADE,
+    read_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, alert_id)
+  );
+
   CREATE TABLE IF NOT EXISTS resq_chat_messages (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES resq_users(id) ON DELETE CASCADE,
@@ -195,12 +201,12 @@ async function ensureSchema() {
           )
           ON CONFLICT (email) DO NOTHING;
         `);
-
       } catch (e) {
         console.error("Auto schema initialization warning:", e);
       }
     })();
   }
+
   return schemaInitPromise;
 }
 
@@ -212,6 +218,7 @@ export async function query(text: string, params?: any[]) {
     if (err?.code === "42P01") {
       console.warn("Table missing, executing automatic schema creation...");
       await ensureSchema();
+
       return await pool.query(text, params);
     }
 
@@ -223,5 +230,3 @@ export async function query(text: string, params?: any[]) {
     throw err;
   }
 }
-
-

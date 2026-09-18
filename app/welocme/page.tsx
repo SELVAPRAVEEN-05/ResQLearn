@@ -1,22 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
-
 import { BookOpen, Network, TriangleAlert, Users } from "lucide-react";
 
 const FEATURES = [
   {
     title: "AI-Powered Learning",
-    description: "Lessons that adapt to how you learn and what you already know.",
+    description:
+      "Lessons that adapt to how you learn and what you already know.",
     icon: BookOpen,
   },
   {
     title: "Explainable Knowledge Graphs",
-    description: "See exactly how disaster concepts connect - and why they matter.",
+    description:
+      "See exactly how disaster concepts connect - and why they matter.",
     icon: Network,
   },
   {
     title: "Interactive Simulations",
-    description: "Practice real emergency scenarios in a safe, guided environment.",
+    description:
+      "Practice real emergency scenarios in a safe, guided environment.",
     icon: TriangleAlert,
   },
   {
@@ -29,13 +31,13 @@ const FEATURES = [
 function SafeGraphLogo() {
   return (
     <Image
-  src="/images/app_logo.png"
-  alt="SafeGraph AI logo"
-  width={200}
-  height={200}
-  priority
-  className="w-70 h-70 object-contain"
-/>
+      priority
+      alt="SafeGraph AI logo"
+      className="w-70 h-70 object-contain"
+      height={200}
+      src="/images/app_logo.png"
+      width={200}
+    />
   );
 }
 
@@ -47,13 +49,16 @@ function SafeGraphLogo() {
 export default function WelcomePage() {
   return (
     <div className="relative flex min-h-screen w-full justify-center overflow-hidden">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#071D18]">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[#071D18]"
+      >
         <Image
-          src="/images/app_front.png"
-          alt="SafeGraph AI start page background"
           fill
           priority
+          alt="SafeGraph AI start page background"
           className="object-cover object-center"
+          src="/images/app_front.png"
         />
       </div>
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(7,40,31,0.47)_0%,rgba(6,34,27,0.57)_100%)]" />
@@ -70,13 +75,15 @@ export default function WelcomePage() {
             SafeGraph AI
           </h1>
           <p className="mx-auto mt-3 max-w-xs text-[15px] leading-relaxed text-white/92">
-            Learn disaster preparedness through explainable AI and knowledge graphs.
+            Learn disaster preparedness through explainable AI and knowledge
+            graphs.
           </p>
         </section>
 
         <section className="mt-11 flex-1 space-y-7">
           {FEATURES.map((feature) => {
             const Icon = feature.icon;
+
             return (
               <article key={feature.title} className="flex items-start gap-4">
                 <span className="mt-[2px] flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#0FC28E] text-white">
@@ -97,15 +104,15 @@ export default function WelcomePage() {
 
         <section className="pb-2 pt-7">
           <Link
-            href="/register"
             className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-4 text-[18px] font-semibold text-[#10B981] shadow-[0_8px_26px_-16px_rgba(0,0,0,0.75)]"
+            href="/register"
           >
             Get Started
           </Link>
 
           <Link
-            href="/login"
             className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-white/70 bg-white/10 px-6 py-3 text-[16px] font-semibold text-white backdrop-blur-[1px]"
+            href="/login"
           >
             Log In
           </Link>

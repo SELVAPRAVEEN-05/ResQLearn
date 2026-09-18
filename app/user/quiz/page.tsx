@@ -2,7 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ClipboardCheck, BarChart3, Flame, Droplet, Wind, Zap, Sun, RotateCw } from "lucide-react";
+import {
+  ClipboardCheck,
+  BarChart3,
+  Flame,
+  Droplet,
+  Wind,
+  Zap,
+  Sun,
+  RotateCw,
+} from "lucide-react";
 
 interface QuizItem {
   id: number;
@@ -32,21 +41,31 @@ interface AttemptItem {
 
 const getIcon = (category: string) => {
   switch (category) {
-    case "Flood": return Droplet;
-    case "Cyclone": return Wind;
-    case "Earthquake": return Zap;
-    case "Fire": return Flame;
-    default: return Sun;
+    case "Flood":
+      return Droplet;
+    case "Cyclone":
+      return Wind;
+    case "Earthquake":
+      return Zap;
+    case "Fire":
+      return Flame;
+    default:
+      return Sun;
   }
 };
 
 const getCategoryStyles = (category: string) => {
   switch (category) {
-    case "Flood": return { iconBg: "#DBEAFE", iconColor: "#2563EB" };
-    case "Cyclone": return { iconBg: "#EDE9FE", iconColor: "#7C3AED" };
-    case "Earthquake": return { iconBg: "#FFEDD5", iconColor: "#EA580C" };
-    case "Fire": return { iconBg: "#FEE2E2", iconColor: "#DC2626" };
-    default: return { iconBg: "#FEF9C3", iconColor: "#CA8A04" };
+    case "Flood":
+      return { iconBg: "#DBEAFE", iconColor: "#2563EB" };
+    case "Cyclone":
+      return { iconBg: "#EDE9FE", iconColor: "#7C3AED" };
+    case "Earthquake":
+      return { iconBg: "#FFEDD5", iconColor: "#EA580C" };
+    case "Fire":
+      return { iconBg: "#FEE2E2", iconColor: "#DC2626" };
+    default:
+      return { iconBg: "#FEF9C3", iconColor: "#CA8A04" };
   }
 };
 
@@ -59,8 +78,12 @@ export default function QuizDashboardPage() {
     async function loadData() {
       try {
         const [qRes, hRes] = await Promise.all([
-          fetch("/api/quizzes").then((r) => (r.ok ? r.json() : { quizzes: [] })),
-          fetch("/api/quizzes/history").then((r) => (r.ok ? r.json() : { attempts: [] })),
+          fetch("/api/quizzes").then((r) =>
+            r.ok ? r.json() : { quizzes: [] },
+          ),
+          fetch("/api/quizzes/history").then((r) =>
+            r.ok ? r.json() : { attempts: [] },
+          ),
         ]);
 
         setQuizzes(qRes.quizzes || []);
@@ -77,8 +100,10 @@ export default function QuizDashboardPage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <RotateCw size={28} className="animate-spin text-[#10B981] mb-2" />
-        <p className="text-sm font-semibold text-[#111827]">Loading disaster assessments...</p>
+        <RotateCw className="animate-spin text-[#10B981] mb-2" size={28} />
+        <p className="text-sm font-semibold text-[#111827]">
+          Loading disaster assessments...
+        </p>
       </div>
     );
   }
@@ -86,11 +111,16 @@ export default function QuizDashboardPage() {
   const totalAttempts = quizAttempts.length;
   const avgScore =
     totalAttempts > 0
-      ? Math.round((quizAttempts.reduce((acc, a) => acc + a.score / (a.total || 1), 0) / totalAttempts) * 100)
+      ? Math.round(
+          (quizAttempts.reduce((acc, a) => acc + a.score / (a.total || 1), 0) /
+            totalAttempts) *
+            100,
+        )
       : 0;
 
   const passedCount = quizAttempts.filter((a) => a.passed).length;
-  const passRate = totalAttempts > 0 ? Math.round((passedCount / totalAttempts) * 100) : 0;
+  const passRate =
+    totalAttempts > 0 ? Math.round((passedCount / totalAttempts) * 100) : 0;
 
   const stats = [
     {
@@ -114,10 +144,17 @@ export default function QuizDashboardPage() {
     <section className="space-y-6 animate-[fadeIn_0.5s_ease-out] pb-10">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-black text-[#111827]">Knowledge Assessment</h1>
-          <p className="mt-1 text-sm text-[#6B7280]">Test your disaster readiness for verified certifications.</p>
+          <h1 className="text-2xl font-black text-[#111827]">
+            Knowledge Assessment
+          </h1>
+          <p className="mt-1 text-sm text-[#6B7280]">
+            Test your disaster readiness for verified certifications.
+          </p>
         </div>
-        <Link href="/user/quiz/history" className="shrink-0 text-xs font-bold text-[#10B981] hover:underline">
+        <Link
+          className="shrink-0 text-xs font-bold text-[#10B981] hover:underline"
+          href="/user/quiz/history"
+        >
           History →
         </Link>
       </div>
@@ -125,6 +162,7 @@ export default function QuizDashboardPage() {
       <div className="grid grid-cols-2 gap-3">
         {stats.map((stat) => {
           const Icon = stat.icon;
+
           return (
             <div
               key={stat.label}
@@ -136,10 +174,18 @@ export default function QuizDashboardPage() {
               >
                 <Icon size={18} />
               </span>
-              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#6B7280]">{stat.label}</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#6B7280]">
+                {stat.label}
+              </p>
               <div className="mt-1 flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-[#111827]">{stat.value}</p>
-                {stat.trend && <span className="text-xs font-semibold text-[#10B981]">{stat.trend}</span>}
+                <p className="text-2xl font-bold text-[#111827]">
+                  {stat.value}
+                </p>
+                {stat.trend && (
+                  <span className="text-xs font-semibold text-[#10B981]">
+                    {stat.trend}
+                  </span>
+                )}
               </div>
             </div>
           );
@@ -151,9 +197,16 @@ export default function QuizDashboardPage() {
         <div className="mt-3 space-y-3">
           {quizzes.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-[#D1D5DB] p-8 text-center bg-white">
-              <ClipboardCheck size={32} className="mx-auto text-[#9CA3AF] mb-3" />
-              <h3 className="text-sm font-bold text-[#111827]">No quizzes available yet.</h3>
-              <p className="text-xs text-[#6B7280] mt-1">Check back later for new admin assessments.</p>
+              <ClipboardCheck
+                className="mx-auto text-[#9CA3AF] mb-3"
+                size={32}
+              />
+              <h3 className="text-sm font-bold text-[#111827]">
+                No quizzes available yet.
+              </h3>
+              <p className="text-xs text-[#6B7280] mt-1">
+                Check back later for new admin assessments.
+              </p>
             </div>
           ) : (
             quizzes.map((q) => {
@@ -161,25 +214,41 @@ export default function QuizDashboardPage() {
               const styles = getCategoryStyles(q.category);
 
               // Calculate best score for this quiz from actual database records
-              const relatedAttempts = quizAttempts.filter((a) => a.quizSlug === q.slug);
+              const relatedAttempts = quizAttempts.filter(
+                (a) => a.quizSlug === q.slug,
+              );
               const bestScore =
                 relatedAttempts.length > 0
-                  ? Math.round(Math.max(...relatedAttempts.map((a) => a.score / (a.total || 1))) * 100) + "%"
+                  ? Math.round(
+                      Math.max(
+                        ...relatedAttempts.map((a) => a.score / (a.total || 1)),
+                      ) * 100,
+                    ) + "%"
                   : "--";
 
               return (
-                <div key={q.slug} className="rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-sm space-y-3">
+                <div
+                  key={q.slug}
+                  className="rounded-3xl border border-[#E5E7EB] bg-white p-5 shadow-sm space-y-3"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <span
                         className="flex h-10 w-10 items-center justify-center rounded-2xl"
-                        style={{ backgroundColor: styles.iconBg, color: styles.iconColor }}
+                        style={{
+                          backgroundColor: styles.iconBg,
+                          color: styles.iconColor,
+                        }}
                       >
                         <Icon size={18} />
                       </span>
                       <div>
-                        <p className="text-base font-bold text-[#111827]">{q.title}</p>
-                        <p className="text-xs text-[#6B7280]">{q.category} Assessment</p>
+                        <p className="text-base font-bold text-[#111827]">
+                          {q.title}
+                        </p>
+                        <p className="text-xs text-[#6B7280]">
+                          {q.category} Assessment
+                        </p>
                       </div>
                     </div>
                     <span
@@ -187,8 +256,8 @@ export default function QuizDashboardPage() {
                         q.difficulty === "Easy"
                           ? "bg-[#D1FAE5] text-[#047857]"
                           : q.difficulty === "Medium"
-                          ? "bg-[#FEF3C7] text-[#B45309]"
-                          : "bg-[#FEE2E2] text-[#B91C1C]"
+                            ? "bg-[#FEF3C7] text-[#B45309]"
+                            : "bg-[#FEE2E2] text-[#B91C1C]"
                       }`}
                     >
                       {q.difficulty}
@@ -198,19 +267,27 @@ export default function QuizDashboardPage() {
                   <div className="flex items-center justify-between border-t border-[#F3F4F6] pt-3 text-sm">
                     <div>
                       <p className="text-xs text-[#6B7280]">Questions</p>
-                      <p className="font-bold text-[#111827]">{q.questions?.length || q.question_count || 0}</p>
+                      <p className="font-bold text-[#111827]">
+                        {q.questions?.length || q.question_count || 0}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-[#6B7280]">Best Score</p>
-                      <p className={bestScore === "--" ? "font-semibold text-[#9CA3AF]" : "font-bold text-[#10B981]"}>
+                      <p
+                        className={
+                          bestScore === "--"
+                            ? "font-semibold text-[#9CA3AF]"
+                            : "font-bold text-[#10B981]"
+                        }
+                      >
                         {bestScore}
                       </p>
                     </div>
                   </div>
 
                   <Link
-                    href={`/user/quiz/${q.slug}`}
                     className="flex items-center justify-center gap-2 rounded-2xl bg-[#10B981] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0E9F72]"
+                    href={`/user/quiz/${q.slug}`}
                   >
                     Start Assessment →
                   </Link>

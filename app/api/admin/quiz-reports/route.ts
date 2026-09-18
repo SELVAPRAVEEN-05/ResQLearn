@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 
 export async function GET() {
@@ -10,12 +11,13 @@ export async function GET() {
        FROM resq_quiz_attempts qa
        JOIN resq_users u ON qa.user_id = u.id
        JOIN resq_quizzes q ON qa.quiz_id = q.id
-       ORDER BY qa.created_at DESC`
+       ORDER BY qa.created_at DESC`,
     );
 
     const attemptsCount = reportsRes.rows.length;
-    const passedCount = reportsRes.rows.filter(r => r.passed).length;
-    const passRate = attemptsCount > 0 ? Math.round((passedCount / attemptsCount) * 100) : 100;
+    const passedCount = reportsRes.rows.filter((r) => r.passed).length;
+    const passRate =
+      attemptsCount > 0 ? Math.round((passedCount / attemptsCount) * 100) : 100;
 
     return NextResponse.json({
       summary: {
@@ -27,6 +29,10 @@ export async function GET() {
     });
   } catch (error: any) {
     console.error("Quiz reports error:", error);
-    return NextResponse.json({ error: "Failed to fetch reports" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch reports" },
+      { status: 500 },
+    );
   }
 }

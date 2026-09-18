@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { ShieldCheck, ArrowRight } from "lucide-react";
 import DashboardPage from "./dashboard/page";
 
 export default function UserPage() {
   return (
     <div>
-        <DashboardPage />
+      <DashboardPage />
     </div>
     // <section className="space-y-4">
     //   <div className="rounded-3xl border border-[#E5E7EB] bg-white p-6 text-center shadow-sm">

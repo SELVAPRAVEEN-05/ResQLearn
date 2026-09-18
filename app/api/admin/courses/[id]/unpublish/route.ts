@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -21,7 +23,7 @@ export async function POST(
            updated_at = CURRENT_TIMESTAMP
        WHERE ${isNumeric ? "id = $1 OR slug = $2" : "slug = $1"}
        RETURNING id, slug, title, is_published as "published"`,
-      isNumeric ? [parseInt(id, 10), id] : [id]
+      isNumeric ? [parseInt(id, 10), id] : [id],
     );
 
     if (result.rows.length === 0) {
@@ -34,6 +36,10 @@ export async function POST(
     });
   } catch (error: any) {
     console.error("Unpublish course error:", error);
-    return NextResponse.json({ error: "Failed to unpublish course" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to unpublish course" },
+      { status: 500 },
+    );
   }
 }

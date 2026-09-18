@@ -3,14 +3,14 @@
 import { useTheme } from "next-themes";
 import React from "react";
 
-import { Button } from "@/components/toggle-button/button";
-
 import { MoonFilledIcon, SunFilledIcon } from "./icons";
 import {
   AnimationStart,
   AnimationVariant,
   createAnimation,
 } from "./theme-animations";
+
+import { Button } from "@/components/toggle-button/button";
 
 interface ThemeToggleAnimationProps {
   variant?: AnimationVariant;
@@ -61,6 +61,7 @@ export default function ThemeToggleButton({
 
     if (!document.startViewTransition) {
       switchTheme();
+
       return;
     }
 
@@ -69,18 +70,14 @@ export default function ThemeToggleButton({
 
   return (
     <Button
-      onClick={toggleTheme}
-      variant="ghost"
-      size="icon"
       className="relative"
       name="Theme Toggle Button"
+      size="icon"
+      variant="ghost"
+      onClick={toggleTheme}
     >
-      <MoonFilledIcon
-        className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 size-[2rem]"
-      />
-      <SunFilledIcon
-        className=" rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-      />
+      <MoonFilledIcon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 size-[2rem]" />
+      <SunFilledIcon className=" rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
       <span className="sr-only">Theme Toggle </span>
       {showLabel && (
         <>

@@ -1,19 +1,22 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   const session = await getSessionUser();
+
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const userId = session.id;
   const attemptId = parseInt(id, 10);
+
   if (isNaN(attemptId)) {
     return NextResponse.json({ error: "Invalid attempt ID" }, { status: 400 });
   }
@@ -27,7 +30,7 @@ export async function GET(
        JOIN resq_quizzes q ON qa.quiz_id = q.id
        JOIN resq_users u ON qa.user_id = u.id
        WHERE qa.id = $1 AND (qa.user_id = $2 OR $3 = 'admin')`,
-      [attemptId, userId, session.role || 'student']
+      [attemptId, userId, session.role || "student"],
     );
 
     if (attemptRes.rows.length === 0) {
@@ -35,7 +38,8 @@ export async function GET(
     }
 
     const row = attemptRes.rows[0];
-    const answers = typeof row.answers === "string" ? JSON.parse(row.answers) : row.answers;
+    const answers =
+      typeof row.answers === "string" ? JSON.parse(row.answers) : row.answers;
 
     return NextResponse.json({
       attempt: {
@@ -57,6 +61,10 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Attempt fetch error:", error);
-    return NextResponse.json({ error: "Failed to fetch attempt" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch attempt" },
+      { status: 500 },
+    );
   }
 }

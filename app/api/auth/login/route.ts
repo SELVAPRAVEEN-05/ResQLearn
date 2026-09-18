@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+
 import { query } from "@/lib/db";
 import { comparePassword, hashPassword } from "@/lib/auth";
 import { signToken } from "@/lib/jwt";
-import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email/username and password are required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,32 +25,39 @@ export async function POST(request: Request) {
       `SELECT * FROM resq_users 
        WHERE LOWER(email) = $1 OR LOWER(name) = $1 
        LIMIT 1`,
-      [inputUser]
+      [inputUser],
     );
 
     // If "admin" keyword was provided and no direct user matched
-    if (userResult.rows.length === 0 && (inputUser === "admin" || inputUser === "admin@safegraph.ai")) {
+    if (
+      userResult.rows.length === 0 &&
+      (inputUser === "admin" || inputUser === "admin@safegraph.ai")
+    ) {
       userResult = await query(
-        "SELECT * FROM resq_users WHERE role = 'admin' OR email = 'admin@safegraph.ai' LIMIT 1"
+        "SELECT * FROM resq_users WHERE role = 'admin' OR email = 'admin@safegraph.ai' LIMIT 1",
       );
     }
 
     // If still no user found, check if it's the default admin attempting first login
-    if (userResult.rows.length === 0 && (inputUser === "admin" || inputUser === "admin@safegraph.ai")) {
+    if (
+      userResult.rows.length === 0 &&
+      (inputUser === "admin" || inputUser === "admin@safegraph.ai")
+    ) {
       const defaultHash = await hashPassword(rawPassword || "admin");
       const createdAdmin = await query(
         `INSERT INTO resq_users (name, email, password_hash, role, institution, department, status)
          VALUES ('SafeGraph Admin', 'admin@safegraph.ai', $1, 'admin', 'SafeGraph Command', 'Admin', 'Active')
          RETURNING *`,
-        [defaultHash]
+        [defaultHash],
       );
+
       userResult = createdAdmin;
     }
 
     if (userResult.rows.length === 0) {
       return NextResponse.json(
         { error: "Invalid email/username or password." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -57,13 +65,16 @@ export async function POST(request: Request) {
 
     if (user.status === "Inactive") {
       return NextResponse.json(
-        { error: "Account has been deactivated. Please contact administration." },
-        { status: 403 }
+        {
+          error: "Account has been deactivated. Please contact administration.",
+        },
+        { status: 403 },
       );
     }
 
     // 2. Compare password (bcrypt hash or plain text fallback for legacy/admin accounts)
     let isMatch = false;
+
     try {
       isMatch = await comparePassword(rawPassword, user.password_hash);
     } catch {
@@ -91,22 +102,25 @@ export async function POST(request: Request) {
       isMatch = true;
       try {
         const newHash = await hashPassword(rawPassword);
+
         await query("UPDATE resq_users SET password_hash = $1 WHERE id = $2", [
           newHash,
           user.id,
         ]);
       } catch (err) {
-        console.warn("Could not update admin password hash in background:", err);
+        console.warn(
+          "Could not update admin password hash in background:",
+          err,
+        );
       }
     }
 
     if (!isMatch) {
       return NextResponse.json(
         { error: "Invalid email/username or password." },
-        { status: 401 }
+        { status: 401 },
       );
     }
-
 
     // 3. Generate JWT Token
     const token = await signToken({
@@ -118,6 +132,7 @@ export async function POST(request: Request) {
 
     // 4. Set secure cookie
     const cookieStore = await cookies();
+
     cookieStore.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -139,10 +154,10 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error("Login route error:", error);
+
     return NextResponse.json(
       { error: error?.message || "Internal server error during login." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

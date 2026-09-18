@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { CourseUpdateSchema } from "@/lib/validations/course";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -23,7 +25,7 @@ export async function GET(
               created_at as "createdAt", updated_at as "updatedAt"
        FROM resq_courses
        WHERE ${isNumeric ? "id = $1 OR slug = $2" : "slug = $1"}`,
-      isNumeric ? [parseInt(id, 10), id] : [id]
+      isNumeric ? [parseInt(id, 10), id] : [id],
     );
 
     if (courseRes.rows.length === 0) {
@@ -40,10 +42,11 @@ export async function GET(
        FROM resq_lessons
        WHERE course_id = $1
        ORDER BY order_index ASC, id ASC`,
-      [course.id]
+      [course.id],
     );
 
     const lessons = [];
+
     for (const l of lessonsRes.rows) {
       const matsRes = await query(
         `SELECT id, lesson_id as "lessonId", title, description, type, url,
@@ -51,7 +54,7 @@ export async function GET(
          FROM resq_materials
          WHERE lesson_id = $1
          ORDER BY order_index ASC, id ASC`,
-        [l.id]
+        [l.id],
       );
       const materials = matsRes.rows;
       const videoMat = materials.find((m) => m.type === "VIDEO");
@@ -73,15 +76,20 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Admin fetch course detail error:", error);
-    return NextResponse.json({ error: "Failed to fetch course details" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch course details" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -91,17 +99,18 @@ export async function PUT(
   try {
     const body = await request.json();
     const parsed = CourseUpdateSchema.safeParse(body);
+
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.issues[0]?.message || "Validation failed" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const isNumeric = /^\d+$/.test(id);
     const existingRes = await query(
       `SELECT id FROM resq_courses WHERE ${isNumeric ? "id = $1 OR slug = $2" : "slug = $1"}`,
-      isNumeric ? [parseInt(id, 10), id] : [id]
+      isNumeric ? [parseInt(id, 10), id] : [id],
     );
 
     if (existingRes.rows.length === 0) {
@@ -109,7 +118,16 @@ export async function PUT(
     }
 
     const courseId = existingRes.rows[0].id;
-    const { title, description, disasterType, thumbnail, difficulty, estimatedDuration, published, iconName } = parsed.data;
+    const {
+      title,
+      description,
+      disasterType,
+      thumbnail,
+      difficulty,
+      estimatedDuration,
+      published,
+      iconName,
+    } = parsed.data;
 
     const result = await query(
       `UPDATE resq_courses
@@ -134,21 +152,29 @@ export async function PUT(
         iconName !== undefined ? iconName : null,
         published !== undefined ? published : null,
         courseId,
-      ]
+      ],
     );
 
-    return NextResponse.json({ message: "Course updated successfully", course: result.rows[0] });
+    return NextResponse.json({
+      message: "Course updated successfully",
+      course: result.rows[0],
+    });
   } catch (error: any) {
     console.error("Update course error:", error);
-    return NextResponse.json({ error: "Failed to update course" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to update course" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const auth = await requireAdmin();
+
   if ("errorResponse" in auth) {
     return auth.errorResponse;
   }
@@ -159,7 +185,7 @@ export async function DELETE(
     const isNumeric = /^\d+$/.test(id);
     const existingRes = await query(
       `SELECT id FROM resq_courses WHERE ${isNumeric ? "id = $1 OR slug = $2" : "slug = $1"}`,
-      isNumeric ? [parseInt(id, 10), id] : [id]
+      isNumeric ? [parseInt(id, 10), id] : [id],
     );
 
     if (existingRes.rows.length === 0) {
@@ -171,32 +197,31 @@ export async function DELETE(
     // Relational cascade cleanup
     await query(
       `DELETE FROM resq_user_material_progress WHERE material_id IN (SELECT id FROM resq_materials WHERE lesson_id IN (SELECT id FROM resq_lessons WHERE course_id = $1))`,
-      [courseId]
+      [courseId],
     );
     await query(
       `DELETE FROM resq_user_lesson_progress WHERE lesson_id IN (SELECT id FROM resq_lessons WHERE course_id = $1)`,
-      [courseId]
+      [courseId],
     );
-    await query(
-      `DELETE FROM resq_user_course_progress WHERE course_id = $1`,
-      [courseId]
-    );
+    await query(`DELETE FROM resq_user_course_progress WHERE course_id = $1`, [
+      courseId,
+    ]);
     await query(
       `DELETE FROM resq_materials WHERE lesson_id IN (SELECT id FROM resq_lessons WHERE course_id = $1)`,
-      [courseId]
+      [courseId],
     );
-    await query(
-      `DELETE FROM resq_lessons WHERE course_id = $1`,
-      [courseId]
-    );
-    await query(
-      `DELETE FROM resq_courses WHERE id = $1`,
-      [courseId]
-    );
+    await query(`DELETE FROM resq_lessons WHERE course_id = $1`, [courseId]);
+    await query(`DELETE FROM resq_courses WHERE id = $1`, [courseId]);
 
-    return NextResponse.json({ message: "Course and related lessons/materials deleted successfully" });
+    return NextResponse.json({
+      message: "Course and related lessons/materials deleted successfully",
+    });
   } catch (error: any) {
     console.error("Delete course error:", error);
-    return NextResponse.json({ error: "Failed to delete course" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to delete course" },
+      { status: 500 },
+    );
   }
 }

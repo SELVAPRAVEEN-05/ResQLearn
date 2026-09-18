@@ -1,5 +1,12 @@
 "use client";
 
+import type { LoginFormData, LoginFormErrors, ToastState } from "@/types/auth";
+
+import { LogIn, Mail, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+
 import AuthLayout from "@/components/auth/authLayout";
 import SocialButton from "@/components/auth/socialButton";
 import Button from "@/components/ui/button";
@@ -9,11 +16,6 @@ import Input from "@/components/ui/input";
 import PasswordInput from "@/components/ui/passwordInput";
 import Toast from "@/components/ui/toast";
 import { isRequired, isValidEmail } from "@/lib/validation";
-import type { LoginFormData, LoginFormErrors, ToastState } from "@/types/auth";
-import { LogIn, Mail, Sparkles } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
 
 const FEATURES = [
   "AI-powered learning",
@@ -46,7 +48,9 @@ export default function LoginPage() {
     if (key === "email" || key === "password") {
       setErrors((prev) => {
         const next = { ...prev };
+
         delete next[key as ErrorField];
+
         return next;
       });
     }
@@ -66,6 +70,7 @@ export default function LoginPage() {
     }
 
     setErrors(nextErrors);
+
     return Object.keys(nextErrors).length === 0;
   }
 
@@ -82,6 +87,7 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
+
       setLoading(false);
 
       if (!res.ok) {
@@ -89,6 +95,7 @@ export default function LoginPage() {
           type: "error",
           message: data.error || "Login failed. Please check your credentials.",
         });
+
         return;
       }
 
@@ -107,7 +114,6 @@ export default function LoginPage() {
       } else {
         router.push("/user/dashboard");
       }
-
     } catch (err) {
       setLoading(false);
       setToast({
@@ -119,9 +125,9 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
-      heading="Welcome to SafeGraph AI"
       description="Empowering disaster preparedness education through Knowledge Graphs, Agentic AI and Explainable AI."
       features={FEATURES}
+      heading="Welcome to SafeGraph AI"
       illustrationVariant="shield"
     >
       <div className="animate-[fadeIn_0.5s_ease-out] rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-[0_4px_24px_-4px_rgba(17,24,39,0.06)] sm:p-9">
@@ -135,47 +141,47 @@ export default function LoginPage() {
           <p className="mt-1.5 text-sm text-[#6B7280]">Sign in to continue</p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <form noValidate className="space-y-5" onSubmit={handleSubmit}>
           <Input
-            label="Email or Username"
-            type="text"
-            name="email"
             autoComplete="email"
-            placeholder="you@university.edu or admin"
-            icon={<Mail size={18} strokeWidth={1.75} />}
-            value={form.email}
             error={errors.email}
+            icon={<Mail size={18} strokeWidth={1.75} />}
+            label="Email or Username"
+            name="email"
+            placeholder="you@university.edu or admin"
+            type="text"
+            value={form.email}
             onChange={(e) => updateField("email", e.target.value)}
           />
 
           <PasswordInput
+            autoComplete="current-password"
+            error={errors.password}
             label="Password"
             name="password"
-            autoComplete="current-password"
             placeholder="Enter your password"
             value={form.password}
-            error={errors.password}
             onChange={(e) => updateField("password", e.target.value)}
           />
 
           <div className="flex items-center justify-between">
             <Checkbox
+              checked={form.rememberMe}
               label="Remember me"
               name="rememberMe"
-              checked={form.rememberMe}
               onChange={(e) =>
                 setForm({ ...form, rememberMe: e.target.checked })
               }
             />
             <Link
-              href="/forgot-password"
               className="text-sm font-medium text-[#10B981] transition-colors hover:text-[#0D9268] focus:outline-none focus-visible:underline"
+              href="/forgot-password"
             >
               Forgot password?
             </Link>
           </div>
 
-          <Button type="submit" loading={loading} icon={<LogIn size={18} />}>
+          <Button icon={<LogIn size={18} />} loading={loading} type="submit">
             Log In
           </Button>
 
@@ -185,7 +191,8 @@ export default function LoginPage() {
             onClick={() =>
               setToast({
                 type: "info" as any,
-                message: "Please sign in with your registered institutional email or admin credentials.",
+                message:
+                  "Please sign in with your registered institutional email or admin credentials.",
               })
             }
           />
@@ -194,8 +201,8 @@ export default function LoginPage() {
         <p className="mt-7 text-center text-sm text-[#6B7280]">
           Don&apos;t have an account?{" "}
           <Link
-            href="/register"
             className="font-semibold text-[#10B981] transition-colors hover:text-[#0D9268] focus:outline-none focus-visible:underline"
+            href="/register"
           >
             Register now
           </Link>

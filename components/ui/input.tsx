@@ -20,14 +20,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     const describedBy = error
       ? `${inputId}-error`
       : hint
-      ? `${inputId}-hint`
-      : undefined;
+        ? `${inputId}-hint`
+        : undefined;
 
     return (
       <div className="w-full">
         <label
-          htmlFor={inputId}
           className="mb-1.5 block text-sm font-medium text-[#111827]"
+          htmlFor={inputId}
         >
           {label}
         </label>
@@ -39,9 +39,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             ref={ref}
-            id={inputId}
-            aria-invalid={Boolean(error)}
             aria-describedby={describedBy}
+            aria-invalid={Boolean(error)}
             className={`w-full rounded-xl border bg-white py-3 text-[15px] text-[#111827] placeholder:text-[#9CA3AF] transition-all duration-200 focus:outline-none focus:ring-4 ${
               icon ? "pl-11 pr-4" : "px-4"
             } ${
@@ -49,25 +48,26 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 ? "border-red-300 focus:border-red-400 focus:ring-red-100"
                 : "border-[#E5E7EB] focus:border-[#10B981] focus:ring-[#10B981]/15"
             } ${className}`}
+            id={inputId}
             {...props}
           />
         </div>
         {error ? (
           <p
+            className="mt-1.5 text-xs font-medium text-red-500"
             id={`${inputId}-error`}
             role="alert"
-            className="mt-1.5 text-xs font-medium text-red-500"
           >
             {error}
           </p>
         ) : hint ? (
-          <p id={`${inputId}-hint`} className="mt-1.5 text-xs text-[#6B7280]">
+          <p className="mt-1.5 text-xs text-[#6B7280]" id={`${inputId}-hint`}>
             {hint}
           </p>
         ) : null}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

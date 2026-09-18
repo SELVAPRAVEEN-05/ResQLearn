@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
     const coursesRes = await query(queryText, params);
 
     const courses = [];
+
     for (const c of coursesRes.rows) {
       // Get lessons for this course
       const lessonsRes = await query(
@@ -38,19 +40,21 @@ export async function GET(request: Request) {
          FROM resq_lessons l
          WHERE l.course_id = $1 AND l.is_published = TRUE
          ORDER BY l.order_index ASC, l.id ASC`,
-        [c.id]
+        [c.id],
       );
 
       // Get materials for each lesson
       const lessonsWithMaterials = [];
+
       for (const l of lessonsRes.rows) {
         const matsRes = await query(
           `SELECT id, lesson_id as "lessonId", title, description, type, url, order_index as "order"
            FROM resq_materials
            WHERE lesson_id = $1
            ORDER BY order_index ASC, id ASC`,
-          [l.id]
+          [l.id],
         );
+
         lessonsWithMaterials.push({
           ...l,
           materials: matsRes.rows,
@@ -60,13 +64,16 @@ export async function GET(request: Request) {
       // Get completed lessons list for user progress tracking
       const progRes = await query(
         `SELECT completed_lesson_ids FROM resq_user_course_progress WHERE user_id = $1 AND course_id = $2`,
-        [userId, c.id]
+        [userId, c.id],
       );
-      const completedIds: string[] = progRes.rows[0]?.completed_lesson_ids || [];
+      const completedIds: string[] =
+        progRes.rows[0]?.completed_lesson_ids || [];
 
       let foundNext = false;
       const formattedLessons = lessonsWithMaterials.map((l, index) => {
-        const isCompleted = completedIds.includes(String(l.id)) || completedIds.includes(l.lessonId);
+        const isCompleted =
+          completedIds.includes(String(l.id)) ||
+          completedIds.includes(l.lessonId);
         let status: "completed" | "in-progress" | "locked" = "locked";
 
         if (isCompleted) {
@@ -98,6 +105,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ courses });
   } catch (error: any) {
     console.error("Fetch courses error:", error);
-    return NextResponse.json({ error: "Failed to fetch courses" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch courses" },
+      { status: 500 },
+    );
   }
 }

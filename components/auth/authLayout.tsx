@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+
 import { Sparkles, Check } from "lucide-react";
+
 import KnowledgeGraphIllustration from "./KnowledgeGraphIllustration";
 
 interface AuthLayoutProps {
