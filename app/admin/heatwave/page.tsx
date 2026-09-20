@@ -124,21 +124,24 @@ export default function AdminHeatwavePage() {
       {/* Date Search & Preset Bar Card */}
       <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-2xs space-y-4">
         <label
-          htmlFor="admin-heatwave-target-date"
           className="block text-xs font-bold uppercase tracking-wider text-[#64748B]"
+          htmlFor="admin-heatwave-target-date"
         >
           Select Forecasting Target Date
         </label>
 
-        <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
+        <form
+          className="flex flex-col gap-3 sm:flex-row"
+          onSubmit={handleSubmit}
+        >
           <div className="relative flex-1">
             <Calendar
               className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
               size={18}
             />
             <input
-              id="admin-heatwave-target-date"
               className="w-full rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] pl-11 pr-4 py-3 text-sm font-medium text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#10B981] focus:bg-white focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none transition"
+              id="admin-heatwave-target-date"
               placeholder="e.g. today, tomorrow, 2026-09-20"
               type="text"
               value={targetDate}
@@ -161,7 +164,9 @@ export default function AdminHeatwavePage() {
 
         {/* Quick Date Presets */}
         <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-          <span className="w-full font-bold text-[#64748B] sm:w-auto">Quick Presets:</span>
+          <span className="w-full font-bold text-[#64748B] sm:w-auto">
+            Quick Presets:
+          </span>
           {quickPresets.map((preset) => (
             <button
               key={preset}

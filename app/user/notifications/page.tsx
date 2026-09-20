@@ -124,9 +124,9 @@ export default function NotificationsPage() {
           </button>
           <h1 className="text-xl font-bold text-[#10B981]">Notifications</h1>
         </div>
-          <button
+        <button
           aria-label="Mark all as read"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full p-2 transition hover:bg-[#F3F4F6]"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full p-2 transition hover:bg-[#F3F4F6]"
           title="Mark all as read"
           onClick={markAllRead}
         >
@@ -173,7 +173,6 @@ export default function NotificationsPage() {
             return (
               <button
                 key={n.id}
-                type="button"
                 className={`block w-full rounded-2xl border border-[#E5E7EB] p-4 text-left shadow-sm transition ${
                   !n.read ? "ring-2 ring-offset-1 ring-[#10B981]/50" : ""
                 }`}
@@ -181,6 +180,7 @@ export default function NotificationsPage() {
                   backgroundColor: !n.read ? colors.cardBg : "#FFFFFF",
                   borderLeft: `4px solid ${colors.accent}`,
                 }}
+                type="button"
                 onClick={() => markAlertRead(n.id)}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

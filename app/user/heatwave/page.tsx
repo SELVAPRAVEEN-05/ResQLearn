@@ -137,15 +137,18 @@ export default function HeatwavePage() {
           Select Prediction Date
         </label>
 
-        <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleSubmit}>
+        <form
+          className="flex flex-col gap-2 sm:flex-row"
+          onSubmit={handleSubmit}
+        >
           <div className="relative flex-1">
             <Calendar
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
               size={18}
             />
             <input
-              id="user-heatwave-target-date"
               className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] pl-10 pr-4 py-2.5 text-sm font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#10B981] focus:bg-white focus:outline-none transition"
+              id="user-heatwave-target-date"
               placeholder="e.g. today, tomorrow, 2026-09-20"
               type="text"
               value={targetDate}
@@ -168,7 +171,9 @@ export default function HeatwavePage() {
 
         {/* Quick Date Presets */}
         <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-          <span className="w-full font-medium text-[#6B7280] sm:w-auto">Quick Presets:</span>
+          <span className="w-full font-medium text-[#6B7280] sm:w-auto">
+            Quick Presets:
+          </span>
           {["today", "tomorrow", "2026-09-20"].map((preset) => (
             <button
               key={preset}
@@ -326,7 +331,9 @@ export default function HeatwavePage() {
                 <CheckCircle2 className="text-[#10B981]" size={12} />{" "}
                 {data.model_name || "SafeGraph ML"}
               </span>
-              <span className="break-words">Source: {data.weather_source || "Open-Meteo API"}</span>
+              <span className="break-words">
+                Source: {data.weather_source || "Open-Meteo API"}
+              </span>
             </div>
           </div>
 

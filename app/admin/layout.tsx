@@ -16,6 +16,7 @@ import {
   X,
   Shield,
   ChevronRight,
+  MapPin,
 } from "lucide-react";
 
 import NotificationBell from "@/components/NotificationBell";
@@ -23,6 +24,7 @@ import NotificationBell from "@/components/NotificationBell";
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Heatwave AI", href: "/admin/heatwave", icon: Flame },
+  { label: "Emergency Map", href: "/admin/emergency", icon: MapPin },
   { label: "Manage Users", href: "/admin/users", icon: Users },
   { label: "Educational Content", href: "/admin/content", icon: BookOpen },
   { label: "Quiz Questions", href: "/admin/quiz-questions", icon: HelpCircle },

@@ -191,6 +191,24 @@ async function initDB() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- 13. Emergency Places Table (Step 4 Admin Verified Places)
+    CREATE TABLE IF NOT EXISTS resq_emergency_places (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      type VARCHAR(50) NOT NULL,
+      latitude NUMERIC(10, 7) NOT NULL,
+      longitude NUMERIC(10, 7) NOT NULL,
+      address TEXT,
+      phone VARCHAR(100),
+      disaster_types TEXT[] DEFAULT ARRAY['General Emergency']::TEXT[],
+      capacity INT,
+      verified BOOLEAN DEFAULT FALSE,
+      available BOOLEAN DEFAULT TRUE,
+      source VARCHAR(50) DEFAULT 'admin',
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- Indexes
     CREATE INDEX IF NOT EXISTS idx_resq_users_email ON resq_users(email);
     CREATE INDEX IF NOT EXISTS idx_resq_courses_slug ON resq_courses(slug);
@@ -209,6 +227,8 @@ async function initDB() {
     CREATE INDEX IF NOT EXISTS idx_resq_quiz_attempts_user ON resq_quiz_attempts(user_id);
     CREATE INDEX IF NOT EXISTS idx_resq_alerts_active ON resq_alerts(is_active);
     CREATE INDEX IF NOT EXISTS idx_resq_chat_messages_user ON resq_chat_messages(user_id);
+    CREATE INDEX IF NOT EXISTS idx_resq_emergency_places_verified ON resq_emergency_places(verified);
+    CREATE INDEX IF NOT EXISTS idx_resq_emergency_places_type ON resq_emergency_places(type);
   `;
 
   try {

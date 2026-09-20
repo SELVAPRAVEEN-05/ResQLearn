@@ -242,7 +242,6 @@ export default function NotificationBell({
                 return (
                   <button
                     key={n.id}
-                    type="button"
                     className={`group block w-full rounded-2xl p-3 text-left transition border ${
                       !n.read
                         ? "bg-[#F9FAFB] border-[#E5E7EB]"
@@ -253,6 +252,7 @@ export default function NotificationBell({
                         ? `4px solid ${colors.accent}`
                         : "4px solid #E5E7EB",
                     }}
+                    type="button"
                     onClick={() => markAlertRead(n.id)}
                   >
                     <div className="flex items-start gap-2.5">

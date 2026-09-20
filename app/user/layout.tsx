@@ -10,6 +10,7 @@ import {
   Bot,
   User,
   Settings,
+  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -19,6 +20,7 @@ const navItems = [
   { label: "Home", href: "/user/dashboard", icon: Home },
   { label: "Learn", href: "/user/learn", icon: BookOpen },
   { label: "Quiz", href: "/user/quiz", icon: FileQuestion },
+  { label: "Map", href: "/user/emergency", icon: MapPin },
   { label: "AI", href: "/user/assistant", icon: Bot },
   { label: "Profile", href: "/user/profile", icon: User },
 ];
@@ -31,6 +33,7 @@ const topLevelPaths = [
   "/user/assistant",
   "/user/profile",
   "/user/heatwave",
+  "/user/emergency",
 ];
 const hideGlobalHeaderPaths = ["/user/notifications"];
 

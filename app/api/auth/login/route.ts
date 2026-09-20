@@ -155,6 +155,23 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Login route error:", error);
 
+    const databaseUnavailable =
+      error?.code === "ECONNREFUSED" ||
+      error?.code === "ENOTFOUND" ||
+      error?.code === "ETIMEDOUT" ||
+      error?.message?.toLowerCase().includes("connection timeout") ||
+      error?.message?.toLowerCase().includes("connection terminated");
+
+    if (databaseUnavailable) {
+      return NextResponse.json(
+        {
+          error:
+            "Login is temporarily unavailable because the database cannot be reached. Check DATABASE_URL and restart the server.",
+        },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
       { error: error?.message || "Internal server error during login." },
       { status: 500 },
