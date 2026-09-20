@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { MapPin, ShieldAlert, Crosshair, Bell, AlertTriangle } from "lucide-react";
+import { MapPin, ShieldAlert, Crosshair, Bell } from "lucide-react";
 
 import LocationControls, {
   LocationState,
@@ -16,7 +16,7 @@ import RouteCard, { RouteInfo } from "@/components/emergency/RouteCard";
 import AIExplanationModal from "@/components/emergency/AIExplanationModal";
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
 import { DisasterType } from "@/lib/disasterRules";
-import { analyzeFacilityHazard, HazardAnalysisResult } from "@/lib/hazardAnalysis";
+import { HazardAnalysisResult } from "@/lib/hazardAnalysis";
 import { EmergencyNotification } from "@/app/api/emergency/notifications/route";
 
 // Default map center (Tamil Nadu / Erode region fallback center)
@@ -57,19 +57,27 @@ export default function StudentEmergencyPage() {
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
 
   // Step 6 Hazard Analysis Cache State
-  const [hazardCache, setHazardCache] = useState<Record<string, HazardAnalysisResult>>({});
+  const [hazardCache, setHazardCache] = useState<
+    Record<string, HazardAnalysisResult>
+  >({});
 
   // Step 7 AI Explanation Modal State
-  const [explainingFacility, setExplainingFacility] = useState<EmergencyFacility | null>(null);
+  const [explainingFacility, setExplainingFacility] =
+    useState<EmergencyFacility | null>(null);
 
   // Step 7 Emergency Notifications State
-  const [notifications, setNotifications] = useState<EmergencyNotification[]>([]);
+  const [notifications, setNotifications] = useState<EmergencyNotification[]>(
+    [],
+  );
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await fetch(`/api/emergency/notifications?disaster=${selectedDisaster}`);
+        const res = await fetch(
+          `/api/emergency/notifications?disaster=${selectedDisaster}`,
+        );
         const data = await res.json();
+
         if (res.ok && data.success && Array.isArray(data.notifications)) {
           setNotifications(data.notifications);
         }
@@ -77,6 +85,7 @@ export default function StudentEmergencyPage() {
         // Silent notification fetch failure
       }
     };
+
     fetchNotifications();
   }, [selectedDisaster]);
 
@@ -228,6 +237,7 @@ export default function StudentEmergencyPage() {
       setErrorMsg(
         "Please acquire your location first using 'Use My Location' or manual search.",
       );
+
       return;
     }
 
@@ -336,10 +346,7 @@ export default function StudentEmergencyPage() {
 
       {/* Active Route Card Overlay */}
       {activeRoute && (
-        <RouteCard
-          routeInfo={activeRoute}
-          onClearRoute={handleClearRoute}
-        />
+        <RouteCard routeInfo={activeRoute} onClearRoute={handleClearRoute} />
       )}
 
       {/* Map Section */}
@@ -464,7 +471,11 @@ export default function StudentEmergencyPage() {
       {/* AI Explanation Modal Popup */}
       {explainingFacility && (
         <AIExplanationModal
-          activeRoute={activeRoute?.facility.id === explainingFacility.id ? activeRoute : null}
+          activeRoute={
+            activeRoute?.facility.id === explainingFacility.id
+              ? activeRoute
+              : null
+          }
           disasterType={selectedDisaster}
           facility={explainingFacility}
           hazard={hazardCache[explainingFacility.id] || null}

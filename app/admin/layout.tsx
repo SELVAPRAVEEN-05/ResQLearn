@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -39,6 +39,17 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileMenuOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -192,8 +203,15 @@ export default function AdminLayout({
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs animate-[fadeIn_0.2s_ease-out]">
-            <div className="fixed inset-y-0 left-0 w-4/5 max-w-xs bg-white shadow-2xl flex flex-col justify-between p-5">
+          <div
+            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs animate-[fadeIn_0.2s_ease-out]"
+            role="presentation"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div
+              className="fixed inset-y-0 left-0 flex w-[min(20rem,88vw)] max-w-full flex-col justify-between overflow-y-auto bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
               <div>
                 <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0]">
                   <div className="flex items-center gap-2">
@@ -252,7 +270,7 @@ export default function AdminLayout({
         )}
 
         {/* Page Main Content Container */}
-        <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 pb-20 md:pb-12">
+        <main className="mx-auto min-w-0 w-full max-w-7xl flex-1 p-4 pb-20 sm:p-6 md:pb-12 lg:p-8">
           {children}
         </main>
       </div>

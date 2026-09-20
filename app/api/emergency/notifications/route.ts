@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { query } from "@/lib/db";
 
 export interface EmergencyNotification {
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
     // 1. Heatwave Risk Alert check from AI service
     if (disasterType === "heatwave" || disasterType === "general") {
       const aiBaseUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+
       try {
         const mlRes = await fetch(
           `${aiBaseUrl.replace(/\/$/, "")}/api/predict-heatwave`,
@@ -33,8 +35,10 @@ export async function GET(request: Request) {
 
         if (mlRes.ok) {
           const mlData = await mlRes.json();
+
           if (mlData && mlData.available) {
             const risk = (mlData.risk || "LOW").toUpperCase();
+
             if (risk === "HIGH" || risk === "MODERATE" || risk === "MEDIUM") {
               notifications.push({
                 id: `heatwave_${mlData.date || "today"}_${risk}`,
@@ -64,13 +68,16 @@ export async function GET(request: Request) {
 
       if (dbResult.rows && dbResult.rows.length > 0) {
         const latest = dbResult.rows[0];
+
         notifications.push({
           id: `facility_verified_${latest.id}`,
           title: "Verified Emergency Facility Operational",
           message: `"${latest.name}" is verified and active in the emergency database.`,
           severity: "Low",
           category: "facility",
-          timestamp: latest.updated_at ? new Date(latest.updated_at).toISOString() : new Date().toISOString(),
+          timestamp: latest.updated_at
+            ? new Date(latest.updated_at).toISOString()
+            : new Date().toISOString(),
         });
       }
     } catch {
@@ -82,7 +89,8 @@ export async function GET(request: Request) {
       notifications.push({
         id: "general_advisory_2026",
         title: "Disaster Preparedness System Active",
-        message: "Select your current emergency type to view prioritized facilities and hazard assessments.",
+        message:
+          "Select your current emergency type to view prioritized facilities and hazard assessments.",
         severity: "Low",
         category: "general",
         timestamp: new Date().toISOString(),
@@ -95,6 +103,7 @@ export async function GET(request: Request) {
     });
   } catch (error: any) {
     console.error("GET /api/emergency/notifications error:", error);
+
     return NextResponse.json(
       { success: false, error: "Failed to fetch notifications." },
       { status: 500 },

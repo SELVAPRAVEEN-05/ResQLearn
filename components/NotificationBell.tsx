@@ -167,7 +167,7 @@ export default function NotificationBell({
 
       {/* Notification Dropdown Popover */}
       {isOpen && (
-        <div className="fixed left-2 right-2 top-16 z-50 w-auto overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-2xl animate-[fadeIn_0.15s_ease-out] sm:absolute sm:left-auto sm:right-0 sm:top-11 sm:w-80 md:w-96">
+        <div className="fixed left-2 right-2 top-16 z-50 flex max-h-[calc(100dvh-5rem)] w-auto flex-col overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-2xl animate-[fadeIn_0.15s_ease-out] sm:absolute sm:left-auto sm:right-0 sm:top-11 sm:w-80 md:w-96">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[#F3F4F6] px-4 py-3.5 bg-white">
             <div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ export default function NotificationBell({
           </div>
 
           {/* Alert List Container */}
-          <div className="max-h-80 overflow-y-auto divide-y divide-[#F3F4F6] p-2 space-y-1">
+          <div className="min-h-0 flex-1 overflow-y-auto divide-y divide-[#F3F4F6] p-2 space-y-1">
             {filteredAlerts.length === 0 ? (
               <div className="py-8 text-center space-y-2">
                 <CheckCircle2 className="mx-auto text-[#9CA3AF]" size={28} />

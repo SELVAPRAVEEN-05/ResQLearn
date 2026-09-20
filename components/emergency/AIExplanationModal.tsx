@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Sparkles, Shield, X, Loader2, Info, CheckCircle2 } from "lucide-react";
+import { Sparkles, X, Loader2, CheckCircle2 } from "lucide-react";
+
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
 import { RouteInfo } from "@/components/emergency/RouteCard";
 import { HazardAnalysisResult } from "@/lib/hazardAnalysis";
@@ -55,6 +56,7 @@ export default function AIExplanationModal({
         });
 
         const data = await res.json();
+
         if (isMounted) {
           if (data.success && data.explanation) {
             setExplanation(data.explanation);
@@ -81,7 +83,7 @@ export default function AIExplanationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs animate-[fadeIn_0.15s_ease-out]">
-      <div className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl bg-white p-5 sm:p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div className="max-h-[calc(100dvh-1rem)] w-full max-w-lg overflow-y-auto rounded-3xl border border-slate-200 bg-white p-4 shadow-2xl space-y-4 sm:max-h-[85vh] sm:p-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
@@ -92,9 +94,7 @@ export default function AIExplanationModal({
               <h3 className="text-base font-black text-slate-900 tracking-tight">
                 Why this facility?
               </h3>
-              <p className="text-[11px] font-bold text-emerald-700">
-                {source}
-              </p>
+              <p className="text-[11px] font-bold text-emerald-700">{source}</p>
             </div>
           </div>
 
@@ -115,7 +115,8 @@ export default function AIExplanationModal({
               Generating grounded recommendation analysis...
             </p>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Evaluating facility type, verification status, route distance, and environmental exposure
+              Evaluating facility type, verification status, route distance, and
+              environmental exposure
             </p>
           </div>
         )}

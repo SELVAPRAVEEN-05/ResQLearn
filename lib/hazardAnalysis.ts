@@ -1,4 +1,5 @@
 import { DisasterType } from "./disasterRules";
+
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
 
 export type HazardExposureLevel =
@@ -63,6 +64,7 @@ export async function analyzeFacilityHazard(
 
         if (mlRes.ok) {
           const mlData = await mlRes.json();
+
           if (mlData && mlData.available) {
             mlRisk = (mlData.risk || "LOW").toUpperCase();
             tempC = mlData.temperature;
@@ -125,7 +127,12 @@ export async function analyzeFacilityHazard(
 
         if (elevRes.ok) {
           const elevData = await elevRes.json();
-          if (elevData && Array.isArray(elevData.elevation) && elevData.elevation.length >= 2) {
+
+          if (
+            elevData &&
+            Array.isArray(elevData.elevation) &&
+            elevData.elevation.length >= 2
+          ) {
             fElev = Math.round(elevData.elevation[0]);
             uElev = Math.round(elevData.elevation[1]);
           }
@@ -174,7 +181,8 @@ export async function analyzeFacilityHazard(
         level: "lower",
         displayStatus: "Lower Estimated Exposure",
         badgeClass: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        explanation: "Admin-verified shelter facility located outside mapped high-risk hazard corridors.",
+        explanation:
+          "Admin-verified shelter facility located outside mapped high-risk hazard corridors.",
         isAvailable: true,
       };
     }

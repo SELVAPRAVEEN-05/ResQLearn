@@ -8,7 +8,9 @@ function generateFallbackExplanation(body: any): string {
   const facilityName = facility?.name || "this emergency facility";
   const facilityType = (facility?.type || "facility").replace("_", " ");
   const dist = route?.distanceKm || facility?.distanceKm || "nearby";
-  const duration = route?.durationMinutes ? `${route.durationMinutes} min` : null;
+  const duration = route?.durationMinutes
+    ? `${route.durationMinutes} min`
+    : null;
   const isVerified = facility?.isVerified;
   const isAvailable = facility?.isAvailable !== false;
 
@@ -89,7 +91,10 @@ ${JSON.stringify({ disasterType, facility, hazard, route }, null, 2)}`;
           }
         }
       } catch (err: any) {
-        console.warn("Gemini API call failed, using deterministic explanation fallback:", err.message);
+        console.warn(
+          "Gemini API call failed, using deterministic explanation fallback:",
+          err.message,
+        );
       }
     }
 

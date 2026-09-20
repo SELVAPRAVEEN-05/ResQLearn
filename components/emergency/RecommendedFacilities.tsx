@@ -9,7 +9,6 @@ import {
   MapPin,
   Phone,
   Sparkles,
-  ArrowRight,
 } from "lucide-react";
 
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
@@ -111,13 +110,13 @@ export default function RecommendedFacilities({
           return (
             <div
               key={`rec_${facility.id}`}
-              role="button"
-              tabIndex={0}
               className={`group relative flex w-full flex-col justify-between text-left rounded-2xl border p-4 transition-all cursor-pointer ${
                 isSelected
                   ? "border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/20 shadow-md"
                   : "border-emerald-200/80 bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/20 hover:border-emerald-400 hover:bg-white shadow-2xs"
               }`}
+              role="button"
+              tabIndex={0}
               onClick={() => onFacilityClick(facility)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -188,9 +187,7 @@ export default function RecommendedFacilities({
                     <span>{facility.phone}</span>
                   </a>
                 ) : (
-                  <span className="text-slate-400 text-[10px]">
-                    No phone
-                  </span>
+                  <span className="text-slate-400 text-[10px]">No phone</span>
                 )}
 
                 <div className="flex items-center gap-1.5">

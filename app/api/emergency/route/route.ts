@@ -38,7 +38,8 @@ export async function GET(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "originLat, originLng, destLat, and destLng parameters are required.",
+          error:
+            "originLat, originLng, destLat, and destLng parameters are required.",
         },
         { status: 400 },
       );
@@ -50,10 +51,18 @@ export async function GET(request: Request) {
     const destLng = parseFloat(destLngStr);
 
     if (
-      isNaN(originLat) || originLat < -90 || originLat > 90 ||
-      isNaN(originLng) || originLng < -180 || originLng > 180 ||
-      isNaN(destLat) || destLat < -90 || destLat > 90 ||
-      isNaN(destLng) || destLng < -180 || destLng > 180
+      isNaN(originLat) ||
+      originLat < -90 ||
+      originLat > 90 ||
+      isNaN(originLng) ||
+      originLng < -180 ||
+      originLng > 180 ||
+      isNaN(destLat) ||
+      destLat < -90 ||
+      destLat > 90 ||
+      isNaN(destLng) ||
+      destLng < -180 ||
+      destLng > 180
     ) {
       return NextResponse.json(
         { success: false, error: "Invalid coordinate values provided." },
@@ -81,15 +90,25 @@ export async function GET(request: Request) {
       if (osrmResponse.ok) {
         const data = await osrmResponse.json();
 
-        if (data.code === "Ok" && Array.isArray(data.routes) && data.routes.length > 0) {
+        if (
+          data.code === "Ok" &&
+          Array.isArray(data.routes) &&
+          data.routes.length > 0
+        ) {
           const mainRoute = data.routes[0];
-          const distanceKm = Math.round((mainRoute.distance / 1000) * 100) / 100;
-          const durationMinutes = Math.max(1, Math.ceil(mainRoute.duration / 60));
+          const distanceKm =
+            Math.round((mainRoute.distance / 1000) * 100) / 100;
+          const durationMinutes = Math.max(
+            1,
+            Math.ceil(mainRoute.duration / 60),
+          );
 
           // GeoJSON coordinates from OSRM are [lng, lat]. Convert to [lat, lng] for Leaflet
-          const coordinates: [number, number][] = mainRoute.geometry.coordinates.map(
-            (coord: [number, number]) => [coord[1], coord[0]],
-          );
+          const coordinates: [number, number][] =
+            mainRoute.geometry.coordinates.map((coord: [number, number]) => [
+              coord[1],
+              coord[0],
+            ]);
 
           return NextResponse.json({
             success: true,
@@ -104,12 +123,23 @@ export async function GET(request: Request) {
         }
       }
     } catch (err: any) {
-      console.warn("OSRM routing API call timed out or failed, using straight-line fallback:", err.message);
+      console.warn(
+        "OSRM routing API call timed out or failed, using straight-line fallback:",
+        err.message,
+      );
     }
 
     // Straight line distance and estimated travel time fallback if OSRM is unreachable
-    const fallbackDistance = calculateHaversineDistance(originLat, originLng, destLat, destLng);
-    const fallbackDuration = Math.max(1, Math.ceil((fallbackDistance / 35) * 60)); // ~35 km/h avg speed
+    const fallbackDistance = calculateHaversineDistance(
+      originLat,
+      originLng,
+      destLat,
+      destLng,
+    );
+    const fallbackDuration = Math.max(
+      1,
+      Math.ceil((fallbackDistance / 35) * 60),
+    ); // ~35 km/h avg speed
     const fallbackCoordinates: [number, number][] = [
       [originLat, originLng],
       [destLat, destLng],
@@ -127,10 +157,12 @@ export async function GET(request: Request) {
     });
   } catch (error: any) {
     console.error("GET /api/emergency/route error:", error);
+
     return NextResponse.json(
       {
         success: false,
-        error: "Unable to calculate route right now. Please use the facility location shown on the map.",
+        error:
+          "Unable to calculate route right now. Please use the facility location shown on the map.",
       },
       { status: 500 },
     );

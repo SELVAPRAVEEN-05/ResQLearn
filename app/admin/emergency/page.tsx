@@ -57,16 +57,22 @@ export default function AdminEmergencyPage() {
   const [isLoadingRoute, setIsLoadingRoute] = useState<boolean>(false);
 
   // Step 7 AI Explanation Modal State
-  const [explainingFacility, setExplainingFacility] = useState<EmergencyFacility | null>(null);
+  const [explainingFacility, setExplainingFacility] =
+    useState<EmergencyFacility | null>(null);
 
   // Step 7 Notifications State
-  const [notifications, setNotifications] = useState<EmergencyNotification[]>([]);
+  const [notifications, setNotifications] = useState<EmergencyNotification[]>(
+    [],
+  );
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await fetch(`/api/emergency/notifications?disaster=${selectedDisaster}`);
+        const res = await fetch(
+          `/api/emergency/notifications?disaster=${selectedDisaster}`,
+        );
         const data = await res.json();
+
         if (res.ok && data.success && Array.isArray(data.notifications)) {
           setNotifications(data.notifications);
         }
@@ -74,6 +80,7 @@ export default function AdminEmergencyPage() {
         // Silent notification fetch failure
       }
     };
+
     fetchNotifications();
   }, [selectedDisaster]);
 
@@ -225,6 +232,7 @@ export default function AdminEmergencyPage() {
       setErrorMsg(
         "Please acquire admin location baseline first using 'Use My Location' or search.",
       );
+
       return;
     }
 
@@ -339,10 +347,7 @@ export default function AdminEmergencyPage() {
 
       {/* Active Route Card Overlay */}
       {activeRoute && (
-        <RouteCard
-          routeInfo={activeRoute}
-          onClearRoute={handleClearRoute}
-        />
+        <RouteCard routeInfo={activeRoute} onClearRoute={handleClearRoute} />
       )}
 
       {/* Command Map */}
@@ -366,7 +371,7 @@ export default function AdminEmergencyPage() {
           activeRoute={activeRoute}
           center={mapCenter}
           facilities={facilities}
-          height="500px"
+          height="min(62vh, 500px)"
           isLoading={isLoadingFacilities || isLoadingRoute}
           selectedFacilityId={selectedFacilityId}
           userLocation={coords}
@@ -471,7 +476,11 @@ export default function AdminEmergencyPage() {
       {/* AI Explanation Modal Popup */}
       {explainingFacility && (
         <AIExplanationModal
-          activeRoute={activeRoute?.facility.id === explainingFacility.id ? activeRoute : null}
+          activeRoute={
+            activeRoute?.facility.id === explainingFacility.id
+              ? activeRoute
+              : null
+          }
           disasterType={selectedDisaster}
           facility={explainingFacility}
           userLocation={coords}

@@ -10,6 +10,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
+
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
 
 export interface RouteInfo {
@@ -27,10 +28,7 @@ interface RouteCardProps {
   onClearRoute: () => void;
 }
 
-export default function RouteCard({
-  routeInfo,
-  onClearRoute,
-}: RouteCardProps) {
+export default function RouteCard({ routeInfo, onClearRoute }: RouteCardProps) {
   const {
     facility,
     distanceKm,
@@ -43,12 +41,12 @@ export default function RouteCard({
   return (
     <div className="rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-teal-50/50 to-white p-4 sm:p-5 shadow-sm space-y-3.5 animate-[fadeIn_0.2s_ease-out]">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm mt-0.5">
             <Navigation size={18} />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200">
                 Active Emergency Route
@@ -63,7 +61,7 @@ export default function RouteCard({
                 </span>
               )}
             </div>
-            <h3 className="text-sm sm:text-base font-black text-slate-900 mt-1 leading-snug">
+            <h3 className="break-words text-sm sm:text-base font-black text-slate-900 mt-1 leading-snug">
               Route to {facility.name}
             </h3>
           </div>
@@ -89,7 +87,8 @@ export default function RouteCard({
             </span>
           </div>
           <p className="text-lg font-black text-slate-900 mt-1">
-            {distanceKm} <span className="text-xs font-bold text-slate-500">km</span>
+            {distanceKm}{" "}
+            <span className="text-xs font-bold text-slate-500">km</span>
           </p>
         </div>
 
@@ -101,7 +100,8 @@ export default function RouteCard({
             </span>
           </div>
           <p className="text-lg font-black text-slate-900 mt-1">
-            {durationMinutes} <span className="text-xs font-bold text-slate-500">min</span>
+            {durationMinutes}{" "}
+            <span className="text-xs font-bold text-slate-500">min</span>
           </p>
         </div>
       </div>
@@ -111,7 +111,8 @@ export default function RouteCard({
         <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900">
           <AlertCircle className="text-amber-600 shrink-0" size={14} />
           <span>
-            Estimated direct path displayed. Follow local road signs and emergency guidance.
+            Estimated direct path displayed. Follow local road signs and
+            emergency guidance.
           </span>
         </div>
       ) : (
@@ -122,7 +123,7 @@ export default function RouteCard({
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 pt-1 flex-wrap sm:flex-nowrap">
+      <div className="flex items-stretch gap-2 pt-1 flex-wrap sm:flex-nowrap">
         {googleMapsUrl && (
           <a
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-xs font-bold transition-all shadow-sm cursor-pointer"
@@ -131,8 +132,8 @@ export default function RouteCard({
             target="_blank"
           >
             <Navigation size={14} />
-            <span>Open Directions in Google Maps</span>
-            <ExternalLink size={12} className="opacity-80" />
+            <span className="break-words">Open Directions in Google Maps</span>
+            <ExternalLink className="opacity-80" size={12} />
           </a>
         )}
 
@@ -144,7 +145,7 @@ export default function RouteCard({
             target="_blank"
           >
             <span>OSM Maps</span>
-            <ExternalLink size={12} className="text-slate-400" />
+            <ExternalLink className="text-slate-400" size={12} />
           </a>
         )}
 

@@ -836,8 +836,8 @@ export default function VerifiedPlacesAdminManager({
               </h3>
               <p className="text-xs text-slate-600 mt-1">
                 Are you sure you want to delete{" "}
-                <strong>&quot;{deletingPlace.name}&quot;</strong>? This will permanently
-                remove the record from NeonDB.
+                <strong>&quot;{deletingPlace.name}&quot;</strong>? This will
+                permanently remove the record from NeonDB.
               </p>
             </div>
 

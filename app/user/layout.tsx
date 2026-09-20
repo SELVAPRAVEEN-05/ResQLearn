@@ -56,7 +56,7 @@ export default function UserLayout({
             {!isTopLevel && (
               <button
                 aria-label="Go back"
-                className="mr-1 -ml-1 rounded-full p-1 transition hover:bg-[#F3F4F6]"
+                className="mr-1 -ml-1 flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-[#F3F4F6]"
                 onClick={() => router.back()}
               >
                 <ArrowLeft className="text-[#111827]" size={18} />
@@ -69,7 +69,7 @@ export default function UserLayout({
           {isProfile ? (
             <Link
               aria-label="Settings"
-              className="rounded-full p-2 transition hover:bg-[#F3F4F6]"
+              className="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-[#F3F4F6]"
               href="/user/profile/edit"
             >
               <Settings className="text-[#111827]" size={20} />
@@ -80,10 +80,12 @@ export default function UserLayout({
         </header>
       )}
 
-      <main className="mx-auto max-w-md px-4 pb-28 pt-4">{children}</main>
+      <main className="mx-auto min-w-0 w-full max-w-7xl px-4 pb-28 pt-4 sm:px-6 lg:px-8">
+        {children}
+      </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-[#E5E7EB] bg-white px-2 pb-[env(safe-area-inset-bottom)] pt-2">
-        <div className="mx-auto flex max-w-md items-center justify-between">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = pathname.startsWith(item.href);

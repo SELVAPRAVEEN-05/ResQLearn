@@ -128,7 +128,7 @@ export default function AssistantPage() {
                 </span>
                 <div>
                   <div
-                    className={`rounded-2xl rounded-tl-sm border ${index === 0 ? "border-[#E5E7EB]" : "border-l-4 border-[#10B981]"} bg-white px-4 py-3 text-sm leading-6 text-[#111827] shadow-sm whitespace-pre-wrap`}
+                    className={`min-w-0 max-w-[calc(100vw-4.5rem)] break-words rounded-2xl rounded-tl-sm border ${index === 0 ? "border-[#E5E7EB]" : "border-l-4 border-[#10B981]"} bg-white px-4 py-3 text-sm leading-6 text-[#111827] shadow-sm whitespace-pre-wrap`}
                   >
                     {msg.text}
                   </div>
@@ -141,7 +141,7 @@ export default function AssistantPage() {
           } else {
             return (
               <div key={msg.id} className="flex items-start justify-end gap-2">
-                <div className="max-w-[80%] rounded-2xl rounded-tr-sm bg-[#F3F4F6] px-4 py-3 text-sm leading-6 text-[#111827]">
+                <div className="min-w-0 max-w-[calc(100vw-4.5rem)] break-words rounded-2xl rounded-tr-sm bg-[#F3F4F6] px-4 py-3 text-sm leading-6 text-[#111827]">
                   {msg.text}
                 </div>
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E0E7FF] text-[#4F46E5]">
@@ -177,8 +177,8 @@ export default function AssistantPage() {
       </div>
 
       {/* Input bar — fixed above bottom nav */}
-      <div className="fixed inset-x-0 bottom-16 z-10 bg-[#F9FAFB] px-4 pb-2 pt-2">
-        <div className="mx-auto max-w-md">
+      <div className="fixed inset-x-0 bottom-16 z-10 bg-[#F9FAFB]/95 px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm">
+        <div className="mx-auto w-full max-w-3xl">
           <form
             className="flex items-center gap-2 rounded-2xl border border-[#E5E7EB] bg-white px-3 py-2 shadow-sm"
             onSubmit={(e) => {
@@ -210,7 +210,7 @@ export default function AssistantPage() {
       </div>
 
       {/* Spacer so messages aren't hidden behind the fixed input bar */}
-      <div className="h-28" />
+      <div className="h-36 sm:h-28" />
     </section>
   );
 }

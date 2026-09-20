@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
@@ -187,17 +194,19 @@ export default function EmergencyMapInner({
         )}
 
         {/* Active Emergency Route Polyline */}
-        {activeRoute && Array.isArray(activeRoute.coordinates) && activeRoute.coordinates.length > 0 && (
-          <Polyline
-            positions={activeRoute.coordinates}
-            pathOptions={{
-              color: "#059669",
-              weight: 5,
-              opacity: 0.85,
-              dashArray: activeRoute.isFallback ? "8, 8" : undefined,
-            }}
-          />
-        )}
+        {activeRoute &&
+          Array.isArray(activeRoute.coordinates) &&
+          activeRoute.coordinates.length > 0 && (
+            <Polyline
+              pathOptions={{
+                color: "#059669",
+                weight: 5,
+                opacity: 0.85,
+                dashArray: activeRoute.isFallback ? "8, 8" : undefined,
+              }}
+              positions={activeRoute.coordinates}
+            />
+          )}
 
         {/* Nearby Emergency Facility Markers */}
         {facilities.map((facility) => {
@@ -288,7 +297,9 @@ export default function EmergencyMapInner({
                         📞 Call
                       </a>
                     ) : (
-                      <span className="text-[10px] text-slate-400">No phone</span>
+                      <span className="text-[10px] text-slate-400">
+                        No phone
+                      </span>
                     )}
 
                     {onRequestRoute && (

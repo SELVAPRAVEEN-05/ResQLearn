@@ -23,7 +23,7 @@ interface EmergencyMapProps {
 const EmergencyMapInner = dynamic(() => import("./EmergencyMapInner"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[450px] w-full flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center shadow-inner">
+    <div className="flex h-[min(58vh,450px)] min-h-[320px] w-full flex-col items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-6 text-center shadow-inner">
       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 mb-3 animate-pulse">
         <MapPin size={24} />
       </div>
