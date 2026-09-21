@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 
 import { query } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if ("errorResponse" in auth) return auth.errorResponse;
+
   try {
     const reportsRes = await query(
       `SELECT qa.id, qa.score, qa.total, qa.passed, qa.created_at,

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 
 import { query } from "@/lib/db";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, hasAdminAccess } from "@/lib/auth";
+import { activeAlertCondition } from "@/lib/notifications";
 
 export async function GET() {
   const session = await getSessionUser();
 
-  if (!session || session.role !== "admin") {
+  if (!session || !hasAdminAccess(session.role)) {
     return NextResponse.json(
       { error: "Unauthorized. Admin role required." },
       { status: 403 },
@@ -50,7 +51,7 @@ export async function GET() {
     );
 
     const activeAlertsRes = await query(
-      "SELECT COUNT(*)::int as count FROM resq_alerts WHERE is_active = TRUE",
+      `SELECT COUNT(*)::int as count FROM resq_alerts a WHERE ${activeAlertCondition()}`,
     );
 
     const totalStudents = studentsRes.rows[0]?.count || 0;

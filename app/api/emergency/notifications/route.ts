@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { query } from "@/lib/db";
+import { activeAlertCondition } from "@/lib/notifications";
 
 export interface EmergencyNotification {
   id: string;
@@ -9,6 +10,7 @@ export interface EmergencyNotification {
   severity: "High" | "Medium" | "Low";
   category: "heatwave" | "facility" | "general";
   timestamp: string;
+  expiresAt?: string | null;
 }
 
 export async function GET(request: Request) {
@@ -17,6 +19,33 @@ export async function GET(request: Request) {
     const disasterType = searchParams.get("disaster") || "general";
 
     const notifications: EmergencyNotification[] = [];
+
+    // Include the same active admin broadcasts shown in the global notification system.
+    try {
+      const alertResult = await query(
+        `SELECT a.alert_id, a.title, a.message, a.severity, a.created_at, a.expires_at
+         FROM resq_alerts a
+         WHERE ${activeAlertCondition()}
+         ORDER BY a.created_at DESC
+         LIMIT 10`,
+      );
+
+      for (const alert of alertResult.rows) {
+        notifications.push({
+          id: `admin_alert_${alert.alert_id}`,
+          title: alert.title,
+          message: alert.message,
+          severity: alert.severity,
+          category: "general",
+          timestamp: new Date(alert.created_at).toISOString(),
+          expiresAt: alert.expires_at
+            ? new Date(alert.expires_at).toISOString()
+            : null,
+        });
+      }
+    } catch {
+      // The emergency feed still serves live AI and facility notifications if the alert store is unavailable.
+    }
 
     // 1. Heatwave Risk Alert check from AI service
     if (disasterType === "heatwave" || disasterType === "general") {
@@ -40,14 +69,21 @@ export async function GET(request: Request) {
             const risk = (mlData.risk || "LOW").toUpperCase();
 
             if (risk === "HIGH" || risk === "MODERATE" || risk === "MEDIUM") {
-              notifications.push({
-                id: `heatwave_${mlData.date || "today"}_${risk}`,
-                title: "Elevated Heatwave Advisory",
-                message: `Heatwave risk level: ${risk} (${mlData.temperature || 38}°C). Check Emergency Map for climate-controlled cooling shelters.`,
-                severity: risk === "HIGH" ? "High" : "Medium",
-                category: "heatwave",
-                timestamp: new Date().toISOString(),
-              });
+              const expiresAt = new Date(
+                `${mlData.date || new Date().toISOString().slice(0, 10)}T23:59:59+05:30`,
+              );
+
+              if (expiresAt > new Date()) {
+                notifications.push({
+                  id: `heatwave_${mlData.date || "today"}_${risk}`,
+                  title: "Elevated Heatwave Advisory",
+                  message: `Heatwave risk level: ${risk} (${mlData.temperature || 38}°C). Check Emergency Map for climate-controlled cooling shelters.`,
+                  severity: risk === "HIGH" ? "High" : "Medium",
+                  category: "heatwave",
+                  timestamp: new Date().toISOString(),
+                  expiresAt: expiresAt.toISOString(),
+                });
+              }
             }
           }
         }

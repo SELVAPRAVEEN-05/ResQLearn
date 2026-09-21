@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { query } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const auth = await requireAdmin();
+  if ("errorResponse" in auth) return auth.errorResponse;
+
   const { id } = await params;
 
   try {

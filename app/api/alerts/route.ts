@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { activeAlertCondition } from "@/lib/notifications";
 
 export async function GET() {
   const session = await getSessionUser();
@@ -13,7 +14,7 @@ export async function GET() {
               CASE WHEN r.user_id IS NOT NULL THEN TRUE ELSE FALSE END as read
        FROM resq_alerts a
        LEFT JOIN resq_user_alert_reads r ON a.id = r.alert_id AND r.user_id = $1
-       WHERE a.is_active = TRUE
+      WHERE ${activeAlertCondition()}
        ORDER BY a.created_at DESC`,
       [userId],
     );

@@ -6,10 +6,10 @@ import type {
   ToastState,
 } from "@/types/auth";
 
-import { BookOpen, Building2, Mail, User, UserPlus } from "lucide-react";
+import { BookOpen, Building2, GraduationCap, Mail, User, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import AuthLayout from "@/components/auth/authLayout";
 import SocialButton from "@/components/auth/socialButton";
@@ -42,12 +42,53 @@ const INITIAL_FORM: RegisterFormData = {
   agreeToTerms: false,
 };
 
+const REGISTER_DRAFT_KEY = "safegraph-register-draft";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState<RegisterFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [draftReady, setDraftReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const draft = sessionStorage.getItem(REGISTER_DRAFT_KEY);
+      if (draft) {
+        const saved = JSON.parse(draft) as Partial<RegisterFormData>;
+        setForm((current) => ({
+          ...current,
+          fullName: saved.fullName || "",
+          email: saved.email || "",
+          institution: saved.institution || "",
+          department: saved.department || "",
+          yearOfStudy: saved.yearOfStudy || "",
+          agreeToTerms: Boolean(saved.agreeToTerms),
+        }));
+      }
+    } catch {
+      sessionStorage.removeItem(REGISTER_DRAFT_KEY);
+    } finally {
+      setDraftReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady) return;
+
+    sessionStorage.setItem(
+      REGISTER_DRAFT_KEY,
+      JSON.stringify({
+        fullName: form.fullName,
+        email: form.email,
+        institution: form.institution,
+        department: form.department,
+        yearOfStudy: form.yearOfStudy,
+        agreeToTerms: form.agreeToTerms,
+      }),
+    );
+  }, [draftReady, form]);
 
   type ErrorField = keyof RegisterFormData;
 
@@ -142,6 +183,7 @@ export default function RegisterPage() {
           institution: form.institution,
           department: form.department,
           yearOfStudy: form.yearOfStudy || "",
+          agreeToTerms: form.agreeToTerms,
         }),
       });
 
@@ -162,6 +204,7 @@ export default function RegisterPage() {
         type: "success",
         message: "Student account created successfully! Welcome.",
       });
+      sessionStorage.removeItem(REGISTER_DRAFT_KEY);
       router.push("/user/dashboard");
     } catch (err) {
       setLoading(false);
@@ -232,6 +275,27 @@ export default function RegisterPage() {
               value={form.department}
               onChange={(e) => update("department", e.target.value)}
             />
+            <div className="w-full">
+              <label className="mb-1.5 block text-sm font-medium text-[#111827]" htmlFor="yearOfStudy">
+                Year of Study <span className="font-normal text-[#9CA3AF]">(optional)</span>
+              </label>
+              <div className="relative">
+                <GraduationCap className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B7280]" size={18} strokeWidth={1.75} />
+                <select
+                  className="w-full appearance-none rounded-xl border border-[#E5E7EB] bg-white py-3 pl-11 pr-4 text-[15px] text-[#111827] focus:border-[#10B981] focus:outline-none focus:ring-4 focus:ring-[#10B981]/15"
+                  id="yearOfStudy"
+                  name="yearOfStudy"
+                  value={form.yearOfStudy || ""}
+                  onChange={(e) => update("yearOfStudy", e.target.value as RegisterFormData["yearOfStudy"])}
+                >
+                  <option value="">Select year</option>
+                  <option value="First Year">First Year</option>
+                  <option value="Second Year">Second Year</option>
+                  <option value="Third Year">Third Year</option>
+                  <option value="Fourth Year">Fourth Year</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <PasswordInput
@@ -281,20 +345,13 @@ export default function RegisterPage() {
             onChange={(e) => update("agreeToTerms", e.target.checked)}
           />
 
-          <Button icon={<UserPlus size={18} />} loading={loading} type="submit">
-            Create Student Account
-          </Button>
+          <SocialButton href="/api/auth/google/start?returnTo=%2Fregister" />
 
           <Divider label="or" />
 
-          <SocialButton
-            onClick={() =>
-              setToast({
-                type: "success",
-                message: "Google sign-up is a placeholder in this demo.",
-              })
-            }
-          />
+          <Button icon={<UserPlus size={18} />} loading={loading} type="submit">
+            Create Student Account
+          </Button>
         </form>
 
         <p className="mt-7 text-center text-sm text-[#6B7280]">

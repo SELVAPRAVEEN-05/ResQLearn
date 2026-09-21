@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { MapPin, ShieldAlert, Crosshair, Bell } from "lucide-react";
+import React, { useState } from "react";
+import { MapPin, ShieldAlert, Crosshair } from "lucide-react";
 
 import LocationControls, {
   LocationState,
@@ -17,7 +17,6 @@ import AIExplanationModal from "@/components/emergency/AIExplanationModal";
 import { EmergencyFacility } from "@/app/api/emergency/nearby/route";
 import { DisasterType } from "@/lib/disasterRules";
 import { HazardAnalysisResult } from "@/lib/hazardAnalysis";
-import { EmergencyNotification } from "@/app/api/emergency/notifications/route";
 
 // Default map center (Tamil Nadu / Erode region fallback center)
 const DEFAULT_CENTER: [number, number] = [11.341, 77.7172];
@@ -64,30 +63,6 @@ export default function StudentEmergencyPage() {
   // Step 7 AI Explanation Modal State
   const [explainingFacility, setExplainingFacility] =
     useState<EmergencyFacility | null>(null);
-
-  // Step 7 Emergency Notifications State
-  const [notifications, setNotifications] = useState<EmergencyNotification[]>(
-    [],
-  );
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch(
-          `/api/emergency/notifications?disaster=${selectedDisaster}`,
-        );
-        const data = await res.json();
-
-        if (res.ok && data.success && Array.isArray(data.notifications)) {
-          setNotifications(data.notifications);
-        }
-      } catch (e) {
-        // Silent notification fetch failure
-      }
-    };
-
-    fetchNotifications();
-  }, [selectedDisaster]);
 
   const fetchNearbyFacilities = async (lat: number, lng: number) => {
     setIsLoadingFacilities(true);
@@ -281,32 +256,6 @@ export default function StudentEmergencyPage() {
 
   return (
     <div className="space-y-4 pb-8 animate-[fadeIn_0.2s_ease-out]">
-      {/* Notifications Banner */}
-      {notifications.length > 0 && (
-        <div className="space-y-2">
-          {notifications.map((n) => (
-            <div
-              key={n.id}
-              className={`flex items-start gap-3 rounded-2xl border p-3.5 text-xs shadow-2xs ${
-                n.severity === "High"
-                  ? "border-rose-200 bg-rose-50 text-rose-900"
-                  : n.severity === "Medium"
-                    ? "border-amber-200 bg-amber-50 text-amber-900"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-900"
-              }`}
-            >
-              <Bell className="shrink-0 mt-0.5" size={16} />
-              <div className="flex-1">
-                <span className="font-extrabold uppercase text-[10px] tracking-wider">
-                  {n.title}
-                </span>
-                <p className="mt-0.5 font-medium">{n.message}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Header Banner */}
       <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 p-4 sm:p-5 shadow-2xs">
         <div className="flex items-start gap-3">

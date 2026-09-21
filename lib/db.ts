@@ -165,6 +165,7 @@ const fallbackStore = {
         "Heavy sustained precipitation across the river catchment has increased reservoir inflow. Low-lying corridors are under active advisory. Avoid all riverbank crossings.",
       severity: "High",
       is_active: true,
+      expires_at: null,
       created_at: new Date().toISOString(),
     },
   ],
@@ -387,6 +388,17 @@ function executeFallbackQuery(
 
   // 5. SELECT resq_alerts
   if (normalized.includes("from resq_alerts")) {
+    const activeAlerts = fallbackStore.alerts.filter((alert) => {
+      if (!alert.is_active) return false;
+      if (!alert.expires_at) return true;
+
+      return new Date(alert.expires_at).getTime() > Date.now();
+    });
+
+    if (normalized.includes("expires_at") || normalized.includes("is_active")) {
+      return { rows: activeAlerts, rowCount: activeAlerts.length };
+    }
+
     return {
       rows: fallbackStore.alerts,
       rowCount: fallbackStore.alerts.length,
@@ -413,6 +425,19 @@ const INIT_DDL = `
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
   );
+
+  ALTER TABLE resq_users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255);
+  ALTER TABLE resq_users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'password';
+  CREATE UNIQUE INDEX IF NOT EXISTS resq_users_google_id_key ON resq_users(google_id) WHERE google_id IS NOT NULL;
+
+  DO $$
+  BEGIN
+    ALTER TABLE resq_users DROP CONSTRAINT IF EXISTS resq_users_role_check;
+    ALTER TABLE resq_users ADD CONSTRAINT resq_users_role_check
+      CHECK (role IN ('student', 'faculty', 'admin'));
+  EXCEPTION
+    WHEN undefined_table THEN NULL;
+  END $$;
 
   CREATE TABLE IF NOT EXISTS resq_courses (
     id SERIAL PRIMARY KEY,
@@ -518,10 +543,20 @@ const INIT_DDL = `
     alert_id VARCHAR(100) UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
-    severity VARCHAR(50) NOT NULL DEFAULT 'Medium',
+    severity VARCHAR(50) NOT NULL DEFAULT 'Medium' CHECK (severity IN ('Critical', 'High', 'Medium', 'Low')),
     is_active BOOLEAN DEFAULT TRUE,
+    expires_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
   );
+  ALTER TABLE resq_alerts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+  DO $$
+  BEGIN
+    ALTER TABLE resq_alerts DROP CONSTRAINT IF EXISTS resq_alerts_severity_check;
+    ALTER TABLE resq_alerts ADD CONSTRAINT resq_alerts_severity_check
+      CHECK (severity IN ('Critical', 'High', 'Medium', 'Low'));
+  EXCEPTION
+    WHEN undefined_table THEN NULL;
+  END $$;
 
   CREATE TABLE IF NOT EXISTS resq_user_alert_reads (
     user_id INT NOT NULL REFERENCES resq_users(id) ON DELETE CASCADE,
@@ -558,7 +593,7 @@ const INIT_DDL = `
 
 let schemaInitPromise: Promise<void> | null = null;
 
-async function ensureSchema() {
+export async function ensureSchema() {
   if (!schemaInitPromise) {
     schemaInitPromise = (async () => {
       try {
@@ -586,31 +621,23 @@ async function ensureSchema() {
 }
 
 export async function query(text: string, params?: any[]) {
-  if (global._fallbackStoreActive) {
-    return executeFallbackQuery(text, params);
-  }
-
   try {
     return await pool.query(text, params);
   } catch (err: any) {
-    if (err?.code === "42P01") {
-      console.warn("Table missing, executing automatic schema creation...");
+    if (
+      ["42P01", "42703", "23514"].includes(err?.code) &&
+      text.toLowerCase().includes("resq_alerts")
+    ) {
+      console.warn("Alert schema mismatch, executing automatic schema upgrade...");
       try {
         await ensureSchema();
 
         return await pool.query(text, params);
       } catch (schemaErr) {
-        console.warn(
-          "Schema creation failed, switching to local database fallback.",
-        );
+        console.error("Schema creation failed:", schemaErr);
       }
     }
 
-    console.warn(
-      `Database connection warning (${err?.message}). Activating local database fallback mode.`,
-    );
-    global._fallbackStoreActive = true;
-
-    return executeFallbackQuery(text, params);
+    throw err;
   }
 }

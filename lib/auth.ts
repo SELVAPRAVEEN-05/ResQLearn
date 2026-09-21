@@ -5,6 +5,10 @@ import { NextResponse } from "next/server";
 import { verifyToken, UserTokenPayload } from "./jwt";
 import { query } from "./db";
 
+export function hasAdminAccess(role: string | undefined): boolean {
+  return role === "admin" || role === "faculty";
+}
+
 export async function getSessionUser(): Promise<UserTokenPayload | null> {
   try {
     const cookieStore = await cookies();
@@ -43,7 +47,7 @@ export async function requireAdmin(): Promise<
     };
   }
 
-  if (session.role !== "admin") {
+  if (!hasAdminAccess(session.role)) {
     return {
       errorResponse: NextResponse.json(
         { error: "Forbidden. Admin privileges required." },

@@ -104,29 +104,29 @@ export default function QuizReportsPage() {
   return (
     <div className="space-y-6 pb-12 animate-[fadeIn_0.3s_ease-out]">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] p-6 lg:p-8 text-white shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-[#0F172A] via-[#1E293B] to-[#0F172A] p-5 sm:p-6 lg:p-8 text-white shadow-xl">
         <div className="absolute right-0 top-0 -mt-8 -mr-8 h-64 w-64 rounded-full bg-[#10B981]/15 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
+          <div className="relative z-10 flex min-w-0 flex-col gap-5 sm:gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-emerald-300 text-xs font-semibold backdrop-blur-md mb-3 border border-white/10">
-              <Sparkles className="text-emerald-400" size={13} />
+              <Sparkles className="text-emerald-600" size={13} />
               <span>Institutional Assessment Analytics</span>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white">
+            <h1 className="break-words text-2xl font-black tracking-tight text-black lg:text-3xl">
               Quiz & Learning Reports
             </h1>
-            <p className="mt-1 text-sm text-slate-300 max-w-xl">
+            <p className="mt-1 max-w-xl whitespace-normal break-words text-sm leading-6 text-slate-600">
               Real-time student comprehension metrics, passing thresholds, and
               detailed attempt audit logs.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start md:self-auto">
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-3 text-right">
-              <span className="text-xs text-slate-400 font-medium block">
+          <div className="flex w-full items-center gap-2 self-stretch sm:w-auto sm:self-start md:self-auto">
+            <div className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left backdrop-blur-md sm:w-auto sm:min-w-40 sm:text-right">
+              <span className="text-xs text-slate-900 font-medium block">
                 Total Assessments
               </span>
-              <span className="text-2xl font-black text-white">
+              <span className="text-2xl font-black text-black">
                 {summary.totalAttempts || reports.length}
               </span>
             </div>

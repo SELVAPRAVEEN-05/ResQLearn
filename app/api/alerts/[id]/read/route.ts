@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getSessionUser } from "@/lib/auth";
 import { query } from "@/lib/db";
+import { activeAlertCondition } from "@/lib/notifications";
 
 export async function POST(
   request: Request,
@@ -18,7 +19,7 @@ export async function POST(
   try {
     // Find alert either by alert_id or id
     const alertRes = await query(
-      "SELECT id FROM resq_alerts WHERE alert_id = $1 OR id::text = $1",
+      `SELECT a.id FROM resq_alerts a WHERE (${activeAlertCondition()}) AND (a.alert_id = $1 OR a.id::text = $1)`,
       [id],
     );
 

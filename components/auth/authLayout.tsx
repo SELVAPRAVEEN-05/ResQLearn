@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { Sparkles, Check } from "lucide-react";
+import Link from "next/link";
 
 import KnowledgeGraphIllustration from "./KnowledgeGraphIllustration";
 
@@ -83,8 +84,14 @@ export default function AuthLayout({
 
         <div className="w-full max-w-md">{children}</div>
 
-        <footer className="mt-8 text-center text-xs text-[#9CA3AF]">
-          © 2026 SafeGraph AI
+        <footer className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center text-xs text-[#9CA3AF]">
+          <span>© 2026 SafeGraph AI</span>
+          <Link className="hover:text-[#10B981] hover:underline" href="/terms">
+            Terms &amp; Conditions
+          </Link>
+          <Link className="hover:text-[#10B981] hover:underline" href="/privacy">
+            Privacy Policy
+          </Link>
         </footer>
       </div>
     </div>

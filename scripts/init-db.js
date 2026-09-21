@@ -22,6 +22,16 @@ async function initDB() {
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
 
+    ALTER TABLE resq_users DROP CONSTRAINT IF EXISTS resq_users_role_check;
+    ALTER TABLE resq_users ADD CONSTRAINT resq_users_role_check
+      CHECK (role IN ('student', 'faculty', 'admin'));
+
+    ALTER TABLE resq_users ADD COLUMN IF NOT EXISTS password_reset_token_hash VARCHAR(64);
+    ALTER TABLE resq_users ADD COLUMN IF NOT EXISTS password_reset_expires_at TIMESTAMP WITH TIME ZONE;
+    ALTER TABLE resq_users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255);
+    ALTER TABLE resq_users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(50) NOT NULL DEFAULT 'password';
+    CREATE UNIQUE INDEX IF NOT EXISTS resq_users_google_id_key ON resq_users(google_id) WHERE google_id IS NOT NULL;
+
     -- 2. Courses Table
     CREATE TABLE IF NOT EXISTS resq_courses (
       id SERIAL PRIMARY KEY,
@@ -169,10 +179,20 @@ async function initDB() {
       alert_id VARCHAR(100) UNIQUE NOT NULL,
       title VARCHAR(255) NOT NULL,
       message TEXT NOT NULL,
-      severity VARCHAR(50) NOT NULL CHECK (severity IN ('High', 'Medium', 'Low')),
+      severity VARCHAR(50) NOT NULL CHECK (severity IN ('Critical', 'High', 'Medium', 'Low')),
       is_active BOOLEAN DEFAULT TRUE,
+      expires_at TIMESTAMP WITH TIME ZONE,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
+    ALTER TABLE resq_alerts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+    DO $$
+    BEGIN
+      ALTER TABLE resq_alerts DROP CONSTRAINT IF EXISTS resq_alerts_severity_check;
+      ALTER TABLE resq_alerts ADD CONSTRAINT resq_alerts_severity_check
+        CHECK (severity IN ('Critical', 'High', 'Medium', 'Low'));
+    EXCEPTION
+      WHEN undefined_table THEN NULL;
+    END $$;
 
     -- 11. User Alert Reads Table
     CREATE TABLE IF NOT EXISTS resq_user_alert_reads (
@@ -226,6 +246,7 @@ async function initDB() {
     CREATE INDEX IF NOT EXISTS idx_resq_quiz_questions_quiz_id ON resq_quiz_questions(quiz_id);
     CREATE INDEX IF NOT EXISTS idx_resq_quiz_attempts_user ON resq_quiz_attempts(user_id);
     CREATE INDEX IF NOT EXISTS idx_resq_alerts_active ON resq_alerts(is_active);
+    CREATE INDEX IF NOT EXISTS idx_resq_alerts_expires_at ON resq_alerts(expires_at);
     CREATE INDEX IF NOT EXISTS idx_resq_chat_messages_user ON resq_chat_messages(user_id);
     CREATE INDEX IF NOT EXISTS idx_resq_emergency_places_verified ON resq_emergency_places(verified);
     CREATE INDEX IF NOT EXISTS idx_resq_emergency_places_type ON resq_emergency_places(type);

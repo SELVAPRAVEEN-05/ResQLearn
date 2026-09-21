@@ -8,7 +8,7 @@ export interface UserTokenPayload {
   id: number;
   email: string;
   name: string;
-  role: "student" | "admin";
+  role: "student" | "faculty" | "admin";
 }
 
 export async function signToken(payload: UserTokenPayload): Promise<string> {

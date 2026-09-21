@@ -77,11 +77,13 @@ export async function POST(request: NextRequest) {
         }${data.explanation ? `\n\n${data.explanation}` : ""}`;
 
         try {
+          const expiresAt = new Date(`${dateKey}T23:59:59+05:30`);
+
           await query(
-            `INSERT INTO resq_alerts (alert_id, title, message, severity, is_active)
-             VALUES ($1, $2, $3, $4, TRUE)
+            `INSERT INTO resq_alerts (alert_id, title, message, severity, is_active, expires_at)
+             VALUES ($1, $2, $3, $4, TRUE, $5)
              ON CONFLICT (alert_id) DO NOTHING`,
-            [alertId, title, message, severity],
+            [alertId, title, message, severity, expiresAt],
           );
         } catch (dbErr) {
           console.error("Error creating automated heatwave risk alert:", dbErr);

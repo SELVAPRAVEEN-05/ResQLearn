@@ -1,16 +1,17 @@
 "use client";
 
 interface SocialButtonProps {
-  onClick?: () => void;
+  href: string;
 }
 
-/** "Continue with Google" button. Purely presentational — no OAuth wiring. */
-export default function SocialButton({ onClick }: SocialButtonProps) {
+export default function SocialButton({ href }: SocialButtonProps) {
   return (
     <button
       className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-[#E5E7EB] bg-white px-5 py-3 text-[15px] font-medium text-[#374151] transition-all duration-200 hover:border-[#D1D5DB] hover:bg-[#F9FAFB] focus:outline-none focus:ring-4 focus:ring-[#10B981]/10 active:bg-[#F3F4F6]"
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        window.location.assign(href);
+      }}
     >
       <svg aria-hidden="true" height="18" viewBox="0 0 24 24" width="18">
         <path

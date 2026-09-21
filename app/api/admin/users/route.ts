@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 
 import { query } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET(request: Request) {
+  const auth = await requireAdmin();
+  if ("errorResponse" in auth) return auth.errorResponse;
+
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
 
@@ -30,7 +34,7 @@ export async function GET(request: Request) {
         id: u.id.toString(),
         name: u.name,
         email: u.email,
-        role: u.role === "admin" ? "Admin" : "Student",
+        role: u.role === "admin" ? "Admin" : u.role === "faculty" ? "Faculty" : "Student",
         status: u.status,
         institution: u.institution,
         department: u.department,

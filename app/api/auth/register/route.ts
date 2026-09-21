@@ -8,20 +8,57 @@ import { signToken } from "@/lib/jwt";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { fullName, email, password, institution, department, yearOfStudy } =
-      body;
+    const {
+      fullName,
+      email,
+      password,
+      institution,
+      department,
+      yearOfStudy,
+      agreeToTerms,
+    } = body;
 
-    if (!fullName || !email || !password) {
+    const normalizedEmail = String(email ?? "").trim().toLowerCase();
+
+    if (
+      !String(fullName ?? "").trim() ||
+      !normalizedEmail ||
+      !String(password ?? "").trim() ||
+      !String(institution ?? "").trim() ||
+      !String(department ?? "").trim()
+    ) {
       return NextResponse.json(
-        { error: "Name, email, and password are required." },
+        { error: "Name, email, institution, department, and password are required." },
+        { status: 400 },
+      );
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return NextResponse.json(
+        { error: "Enter a valid email address." },
+        { status: 400 },
+      );
+    }
+
+    if (String(password).length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters." },
+        { status: 400 },
+      );
+    }
+
+    if (agreeToTerms !== true) {
+      return NextResponse.json(
+        { error: "You must agree to the Terms & Conditions and Privacy Policy." },
         { status: 400 },
       );
     }
 
     // Check if user exists
-    const existing = await query("SELECT id FROM resq_users WHERE email = $1", [
-      email.toLowerCase().trim(),
-    ]);
+    const existing = await query(
+      "SELECT id FROM resq_users WHERE LOWER(TRIM(email)) = $1 LIMIT 1",
+      [normalizedEmail],
+    );
 
     if (existing.rows.length > 0) {
       return NextResponse.json(
@@ -38,7 +75,7 @@ export async function POST(request: Request) {
        RETURNING id, name, email, role, institution, department, year_of_study, preparedness_score, certificates, status`,
       [
         fullName.trim(),
-        email.toLowerCase().trim(),
+        normalizedEmail,
         passwordHash,
         institution || "",
         department || "",
@@ -78,6 +115,32 @@ export async function POST(request: Request) {
     );
   } catch (error: any) {
     console.error("Registration error:", error);
+
+    if (
+      error?.code === "23505" &&
+      (error?.constraint === "resq_users_email_key" ||
+        error?.constraint === "idx_resq_users_email")
+    ) {
+      return NextResponse.json(
+        { error: "An account with this email already exists." },
+        { status: 409 },
+      );
+    }
+
+    if (
+      error?.code === "ECONNREFUSED" ||
+      error?.code === "ENOTFOUND" ||
+      error?.code === "ETIMEDOUT" ||
+      error?.code === "28P01" ||
+      error?.code === "28000" ||
+      error?.code === "3D000" ||
+      error?.message?.toLowerCase().includes("connection")
+    ) {
+      return NextResponse.json(
+        { error: "Registration is temporarily unavailable because Neon DB cannot be reached." },
+        { status: 503 },
+      );
+    }
 
     return NextResponse.json(
       { error: "Internal server error during registration." },

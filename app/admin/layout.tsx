@@ -39,6 +39,20 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{
+    name?: string;
+    email?: string;
+    role?: string;
+  }>({});
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) setCurrentUser(JSON.parse(storedUser));
+    } catch {
+      setCurrentUser({});
+    }
+  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -80,7 +94,7 @@ export default function AdminLayout({
               <p className="text-sm font-black tracking-tight text-[#0F172A] flex items-center gap-1.5">
                 SafeGraph AI
                 <span className="rounded-md bg-[#10B981]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#059669]">
-                  Admin
+                  {currentUser.role === "faculty" ? "Faculty" : "Admin"}
                 </span>
               </p>
               <p className="text-[11px] font-medium text-[#64748B]">
@@ -137,14 +151,14 @@ export default function AdminLayout({
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E2E8F0] font-bold text-xs text-[#475569]">
-                AD
+                {(currentUser.name || "Administrator").slice(0, 2).toUpperCase()}
               </div>
               <div className="overflow-hidden">
                 <p className="text-xs font-bold text-[#0F172A] truncate">
-                  Administrator
+                  {currentUser.name || "Administrator"}
                 </p>
                 <p className="text-[10px] text-[#64748B] truncate">
-                  admin@safegraph.ai
+                  {currentUser.email || "admin@safegraph.ai"}
                 </p>
               </div>
             </div>
@@ -174,7 +188,7 @@ export default function AdminLayout({
 
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-[#64748B] hidden sm:inline">
-                Admin
+                {currentUser.role === "faculty" ? "Faculty" : "Admin"}
               </span>
               <ChevronRight
                 className="text-[#94A3B8] hidden sm:inline"
@@ -191,7 +205,7 @@ export default function AdminLayout({
               <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
               Neon DB Active
             </span>
-            <NotificationBell role="admin" />
+            <NotificationBell role={currentUser.role === "faculty" ? "faculty" : "admin"} />
             <button
               className="md:hidden flex items-center gap-1 text-xs font-bold text-[#DC2626] bg-[#FEF2F2] px-3 py-1.5 rounded-xl border border-[#FEE2E2]"
               onClick={handleLogout}
@@ -219,7 +233,7 @@ export default function AdminLayout({
                       <Shield size={16} />
                     </div>
                     <span className="font-bold text-sm text-[#0F172A]">
-                      SafeGraph Admin
+                      SafeGraph {currentUser.role === "faculty" ? "Faculty" : "Admin"}
                     </span>
                   </div>
                   <button

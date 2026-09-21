@@ -5,7 +5,7 @@ import type { LoginFormData, LoginFormErrors, ToastState } from "@/types/auth";
 import { LogIn, Mail, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import AuthLayout from "@/components/auth/authLayout";
 import SocialButton from "@/components/auth/socialButton";
@@ -36,6 +36,12 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("reset") === "success") {
+      setToast({ type: "success", message: "Password reset successfully. You can now sign in." });
+    }
+  }, []);
 
   type ErrorField = keyof LoginFormErrors;
 
@@ -109,7 +115,7 @@ export default function LoginPage() {
         message: "Signed in successfully. Welcome back!",
       });
 
-      if (data.user?.role === "admin") {
+      if (data.user?.role === "admin" || data.user?.role === "faculty") {
         router.push("/admin");
       } else {
         router.push("/user/dashboard");
@@ -148,7 +154,7 @@ export default function LoginPage() {
             icon={<Mail size={18} strokeWidth={1.75} />}
             label="Email or Username"
             name="email"
-            placeholder="you@university.edu or admin"
+            placeholder="you@university.edu"
             type="text"
             value={form.email}
             onChange={(e) => updateField("email", e.target.value)}
@@ -181,21 +187,15 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <Button icon={<LogIn size={18} />} loading={loading} type="submit">
-            Log In
-          </Button>
+          <SocialButton
+            href="/api/auth/google/start?returnTo=%2Flogin"
+          />
 
           <Divider label="or" />
 
-          <SocialButton
-            onClick={() =>
-              setToast({
-                type: "info" as any,
-                message:
-                  "Please sign in with your registered institutional email or admin credentials.",
-              })
-            }
-          />
+          <Button icon={<LogIn size={18} />} loading={loading} type="submit">
+            Log In
+          </Button>
         </form>
 
         <p className="mt-7 text-center text-sm text-[#6B7280]">
@@ -207,6 +207,31 @@ export default function LoginPage() {
             Register now
           </Link>
         </p>
+
+        <section
+          aria-labelledby="demo-accounts-heading"
+          className="mt-6 rounded-xl border border-[#D1FAE5] bg-[#F0FDF4] p-4 text-left"
+        >
+          <h3
+            className="text-sm font-semibold text-[#065F46]"
+            id="demo-accounts-heading"
+          >
+            Demo Accounts
+          </h3>
+          
+          <div className="mt-3 grid gap-3 text-xs text-[#064E3B] sm:grid-cols-2">
+            <div className="rounded-lg border border-[#A7F3D0] bg-white p-3">
+              <p className="font-semibold">Student Demo</p>
+              <p className="mt-1 break-all">Email: student@gmail.com</p>
+              <p>Password: students</p>
+            </div>
+            <div className="rounded-lg border border-[#A7F3D0] bg-white p-3">
+              <p className="font-semibold">Faculty Demo</p>
+              <p className="mt-1 break-all">Email: faculty.demo@safegraph.ai</p>
+              <p>Password: FacultyDemo2026!</p>
+            </div>
+          </div>
+        </section>
       </div>
 
       <Toast toast={toast} onDismiss={() => setToast(null)} />

@@ -70,7 +70,7 @@ const getColors = (severity: string) => {
 export default function NotificationBell({
   role = "student",
 }: {
-  role?: "student" | "admin";
+  role?: "student" | "faculty" | "admin";
 }) {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -292,7 +292,7 @@ export default function NotificationBell({
           <div className="border-t border-[#F3F4F6] bg-[#FAFAFA] p-2 text-center">
             <Link
               className="inline-flex items-center gap-1 text-xs font-bold text-[#10B981] hover:underline py-1"
-              href={role === "admin" ? "/admin/alerts" : "/user/notifications"}
+              href={role === "admin" || role === "faculty" ? "/admin/alerts" : "/user/notifications"}
               onClick={() => setIsOpen(false)}
             >
               View All Alerts & Notifications <ChevronRight size={13} />
