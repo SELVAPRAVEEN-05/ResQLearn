@@ -1,5 +1,15 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, LockKeyhole } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Official Privacy Policy explaining how SafeGraph AI handles information for learning, assessment, and emergency preparedness features.",
+  alternates: {
+    canonical: "/privacy",
+  },
+};
 
 const sections = [
   ["Information we collect", "Registration collects your name, email address, institution, department, optional year of study, and a securely hashed password. The application also stores account status and timestamps."],

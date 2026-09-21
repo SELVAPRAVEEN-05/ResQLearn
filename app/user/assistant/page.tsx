@@ -16,7 +16,7 @@ import {
 
 const suggestions = [
   { label: "What is the heatwave risk in Erode today?", icon: Flame },
-  { label: "Heatwave prediction for 20 September 2026", icon: Calendar },
+  { label: "What is the heatwave forecast for tomorrow?", icon: Calendar },
   { label: "How to prepare for a flood?", icon: Droplet },
   { label: "Explain earthquake safety", icon: AlertTriangle },
   { label: "Emergency kit list", icon: Briefcase },

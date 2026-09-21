@@ -102,6 +102,7 @@ export default function EditProfilePage() {
                   alt="Profile"
                   className="h-full w-full object-cover"
                   src={avatar}
+                  referrerPolicy="no-referrer"
                 />
               ) : (
                 <User className="text-[#9CA3AF]" size={40} />

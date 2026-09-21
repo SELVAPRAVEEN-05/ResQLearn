@@ -1,5 +1,15 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions",
+  description:
+    "Official Terms and Conditions describing user expectations and guidelines for the SafeGraph AI disaster preparedness platform.",
+  alternates: {
+    canonical: "/terms",
+  },
+};
 
 const sections = [
   ["User responsibilities", "Provide accurate registration information and use SafeGraph AI in a way that supports a respectful learning community."],

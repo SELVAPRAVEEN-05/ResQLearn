@@ -84,21 +84,20 @@ export async function GET(request: Request) {
         return errorRedirect(request, returnTo, "inactive");
       }
 
-      if (existingUser.google_id !== payload.sub) {
-        userResult = await query(
-          `UPDATE resq_users
-           SET google_id = $1,
-               auth_provider = CASE
-                 WHEN auth_provider = 'password' THEN 'password+google'
-                 ELSE auth_provider
-               END,
-               avatar = COALESCE($2, avatar),
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = $3
-           RETURNING *`,
-          [payload.sub, payload.picture || null, existingUser.id],
-        );
-      }
+      // Always update google_id and synchronize Google profile picture avatar
+      userResult = await query(
+        `UPDATE resq_users
+         SET google_id = $1,
+             auth_provider = CASE
+               WHEN auth_provider = 'password' THEN 'password+google'
+               ELSE auth_provider
+             END,
+             avatar = COALESCE(NULLIF($2::text, ''), avatar),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $3
+         RETURNING *`,
+        [payload.sub, payload.picture || null, existingUser.id],
+      );
     }
 
     const user = userResult.rows[0];
@@ -109,26 +108,34 @@ export async function GET(request: Request) {
       role: user.role,
     });
 
-    cookieStore.set("token", token, {
+    const destination =
+      user.role === "admin" || user.role === "faculty"
+        ? "/admin"
+        : "/user/dashboard";
+
+    const response = NextResponse.redirect(new URL(destination, request.url));
+
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "lax" as const,
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
-    });
-    cookieStore.set("role", user.role, {
+    };
+
+    response.cookies.set("token", token, cookieOptions);
+    response.cookies.set("role", user.role, {
+      ...cookieOptions,
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
     });
 
-    const destination = user.role === "admin" || user.role === "faculty"
-      ? "/admin"
-      : "/user/dashboard";
+    cookieStore.set("token", token, cookieOptions);
+    cookieStore.set("role", user.role, {
+      ...cookieOptions,
+      httpOnly: false,
+    });
 
-    return NextResponse.redirect(new URL(destination, request.url));
+    return response;
   } catch (error) {
     console.error("Google OAuth callback failed:", error);
     return errorRedirect(request, returnTo, "failed");

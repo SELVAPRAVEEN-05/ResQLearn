@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Flame,
   Calendar,
@@ -40,6 +40,22 @@ export default function HeatwavePage() {
   const [data, setData] = useState<HeatwavePredictionData | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const datePickerRef = useRef<HTMLInputElement>(null);
+
+  const handleOpenCalendar = () => {
+    if (datePickerRef.current) {
+      try {
+        if (typeof datePickerRef.current.showPicker === "function") {
+          datePickerRef.current.showPicker();
+        } else {
+          datePickerRef.current.focus();
+          datePickerRef.current.click();
+        }
+      } catch (err) {
+        console.warn("Date picker open error:", err);
+      }
+    }
+  };
 
   const fetchPrediction = async (dateParam: string) => {
     setLoading(true);
@@ -141,19 +157,44 @@ export default function HeatwavePage() {
           className="flex flex-col gap-2 sm:flex-row"
           onSubmit={handleSubmit}
         >
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex items-center">
             <Calendar
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF]"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] pointer-events-none z-0"
               size={18}
             />
             <input
-              className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] pl-10 pr-4 py-2.5 text-sm font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#10B981] focus:bg-white focus:outline-none transition"
+              className="w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] pl-10 pr-28 py-2.5 text-sm font-medium text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#10B981] focus:bg-white focus:outline-none transition"
               id="user-heatwave-target-date"
-              placeholder="e.g. today, tomorrow, 2026-09-20"
+              placeholder="e.g. today, tomorrow, YYYY-MM-DD"
               type="text"
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
             />
+            {/* Calendar Date Picker Button */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center z-10">
+              <button
+                type="button"
+                onClick={handleOpenCalendar}
+                className="relative flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold text-[#059669] bg-[#ECFDF5] hover:bg-[#D1FAE5] border border-[#A7F3D0] cursor-pointer transition shadow-2xs overflow-hidden"
+                title="Select date from calendar picker"
+              >
+                <Calendar size={13} />
+                <span>Calendar</span>
+                <input
+                  ref={datePickerRef}
+                  type="date"
+                  id="user-heatwave-date-picker"
+                  aria-label="Select target prediction date from calendar"
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full text-transparent bg-transparent border-none outline-none z-20"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setTargetDate(e.target.value);
+                      fetchPrediction(e.target.value);
+                    }
+                  }}
+                />
+              </button>
+            </div>
           </div>
           <button
             className="flex min-h-11 items-center justify-center gap-1.5 rounded-2xl bg-[#10B981] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#0E9F72] disabled:opacity-50 sm:px-4"
@@ -174,7 +215,7 @@ export default function HeatwavePage() {
           <span className="w-full font-medium text-[#6B7280] sm:w-auto">
             Quick Presets:
           </span>
-          {["today", "tomorrow", "2026-09-20"].map((preset) => (
+          {["today", "tomorrow"].map((preset) => (
             <button
               key={preset}
               className={`rounded-full px-3 py-1 font-semibold transition ${

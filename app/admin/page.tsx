@@ -510,7 +510,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[640px] text-left text-xs">
             <thead>
               <tr className="border-b border-[#F1F5F9] text-[#64748B] font-bold uppercase tracking-wider text-[10px]">
                 <th className="pb-3 pl-1">Student Name & Email</th>

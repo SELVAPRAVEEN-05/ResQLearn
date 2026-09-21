@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Flame,
   Calendar,
@@ -13,6 +13,10 @@ import {
   CheckCircle2,
   ArrowRight,
   ShieldAlert,
+  X,
+  Send,
+  User,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -40,6 +44,38 @@ export default function AdminHeatwavePage() {
   const [data, setData] = useState<HeatwavePredictionData | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const datePickerRef = useRef<HTMLInputElement>(null);
+
+  const handleOpenCalendar = () => {
+    if (datePickerRef.current) {
+      try {
+        if (typeof datePickerRef.current.showPicker === "function") {
+          datePickerRef.current.showPicker();
+        } else {
+          datePickerRef.current.focus();
+          datePickerRef.current.click();
+        }
+      } catch (err) {
+        console.warn("Date picker open error:", err);
+      }
+    }
+  };
+
+  // In-module AI Assistant State
+  const [showAssistantModal, setShowAssistantModal] = useState(false);
+  const [assistantMessages, setAssistantMessages] = useState<
+    Array<{ id: number; sender: "bot" | "user"; text: string }>
+  >([
+    {
+      id: 1,
+      sender: "bot",
+      text: "I'm your Admin Disaster & Heatwave AI Assistant. How can I help you analyze heatwave telemetry, model parameters, or emergency protocols today?",
+    },
+  ]);
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantLoading, setAssistantLoading] = useState(false);
+  const assistantScrollRef = useRef<HTMLDivElement>(null);
+
   const quickPresets = [
     "today",
     "tomorrow",
@@ -47,7 +83,6 @@ export default function AdminHeatwavePage() {
     "next month",
     "3 months from now",
     "next year",
-    "2026-09-20",
   ];
 
   const fetchPrediction = async (dateParam: string) => {
@@ -80,10 +115,66 @@ export default function AdminHeatwavePage() {
     fetchPrediction("today");
   }, []);
 
+  const scrollToAssistantBottom = () => {
+    assistantScrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (showAssistantModal) {
+      scrollToAssistantBottom();
+    }
+  }, [assistantMessages, assistantLoading, showAssistantModal]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetDate.trim()) return;
     fetchPrediction(targetDate.trim());
+  };
+
+  const handleAssistantSend = async (text: string) => {
+    if (!text.trim() || assistantLoading) return;
+
+    const userMsg = { id: Date.now(), sender: "user" as const, text };
+    setAssistantMessages((prev) => [...prev, userMsg]);
+    setAssistantInput("");
+    setAssistantLoading(true);
+
+    try {
+      const res = await fetch("/api/assistant/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      const result = await res.json();
+      setAssistantLoading(false);
+
+      if (res.ok && result.message) {
+        setAssistantMessages((prev) => [
+          ...prev,
+          { id: Date.now() + 1, sender: "bot", text: result.message },
+        ]);
+      } else {
+        setAssistantMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now() + 1,
+            sender: "bot",
+            text: "I'm currently unable to retrieve disaster guidance. Please try again in a moment.",
+          },
+        ]);
+      }
+    } catch {
+      setAssistantLoading(false);
+      setAssistantMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: "bot",
+          text: "Network error. Please verify your connection.",
+        },
+      ]);
+    }
   };
 
   const isHighOrModerateRisk =
@@ -134,19 +225,44 @@ export default function AdminHeatwavePage() {
           className="flex flex-col gap-3 sm:flex-row"
           onSubmit={handleSubmit}
         >
-          <div className="relative flex-1">
+          <div className="relative flex-1 flex items-center">
             <Calendar
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] pointer-events-none z-0"
               size={18}
             />
             <input
-              className="w-full rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] pl-11 pr-4 py-3 text-sm font-medium text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#10B981] focus:bg-white focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none transition"
+              className="w-full rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] pl-11 pr-32 py-3 text-sm font-medium text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#10B981] focus:bg-white focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none transition"
               id="admin-heatwave-target-date"
-              placeholder="e.g. today, tomorrow, 2026-09-20"
+              placeholder="e.g. today, tomorrow, YYYY-MM-DD"
               type="text"
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
             />
+            {/* Calendar Date Picker Button */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center z-10">
+              <button
+                type="button"
+                onClick={handleOpenCalendar}
+                className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#059669] bg-[#ECFDF5] hover:bg-[#D1FAE5] border border-[#A7F3D0] cursor-pointer transition shadow-2xs overflow-hidden"
+                title="Select date from calendar picker"
+              >
+                <Calendar size={14} />
+                <span>Calendar</span>
+                <input
+                  ref={datePickerRef}
+                  type="date"
+                  id="admin-heatwave-date-picker"
+                  aria-label="Select target forecast date from calendar"
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full text-transparent bg-transparent border-none outline-none z-20"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setTargetDate(e.target.value);
+                      fetchPrediction(e.target.value);
+                    }
+                  }}
+                />
+              </button>
+            </div>
           </div>
           <button
             className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#10B981] px-6 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#059669] disabled:opacity-50 active:scale-98 sm:px-6"
@@ -437,13 +553,150 @@ export default function AdminHeatwavePage() {
                   Query the explainable offline Knowledge Base & Gemini LLM
                   grounding for custom heatwave safety protocols.
                 </p>
-                <Link
-                  className="mt-2 inline-flex items-center gap-2 rounded-xl bg-[#10B981] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#059669] transition"
-                  href="/user/assistant"
+                <button
+                  type="button"
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl bg-[#10B981] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#059669] transition cursor-pointer"
+                  onClick={() => setShowAssistantModal(true)}
                 >
                   Launch AI Assistant <ArrowRight size={14} />
-                </Link>
+                </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Heat AI Assistant Drawer/Modal */}
+      {showAssistantModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-[fadeIn_0.2s_ease-out]">
+          <div className="flex flex-col w-full max-w-2xl h-[620px] max-h-[90vh] bg-white rounded-3xl border border-[#E2E8F0] shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 bg-[#0F172A] text-white border-b border-[#1E293B]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/30">
+                  <Bot size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">
+                      Admin Heatwave AI Assistant
+                    </h3>
+                    <span className="flex h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+                  </div>
+                  <p className="text-xs text-[#94A3B8]">
+                    Powered by SafeGraph AI & Gemini LLM Engine
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1E293B] text-[#94A3B8] hover:text-white hover:bg-[#334155] transition"
+                onClick={() => setShowAssistantModal(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Chat Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8FAFC]">
+              {assistantMessages.map((msg) => {
+                if (msg.sender === "bot") {
+                  return (
+                    <div key={msg.id} className="flex items-start gap-3">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white shadow-2xs mt-0.5">
+                        <Bot size={16} />
+                      </span>
+                      <div className="min-w-0 max-w-[85%] space-y-1">
+                        <div className="rounded-2xl rounded-tl-xs border border-[#E2E8F0] bg-white px-4 py-3 text-xs leading-relaxed text-[#1E293B] shadow-2xs whitespace-pre-wrap">
+                          {msg.text}
+                        </div>
+                        <span className="flex items-center gap-1 text-[10px] font-semibold text-[#059669]">
+                          <CheckCircle2 size={11} /> Verified Grounding
+                        </span>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div key={msg.id} className="flex items-start justify-end gap-3">
+                      <div className="min-w-0 max-w-[85%] rounded-2xl rounded-tr-xs bg-[#0F172A] px-4 py-3 text-xs leading-relaxed text-white shadow-2xs whitespace-pre-wrap">
+                        {msg.text}
+                      </div>
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#334155] text-white shadow-2xs mt-0.5">
+                        <User size={16} />
+                      </span>
+                    </div>
+                  );
+                }
+              })}
+
+              {/* Typing indicator */}
+              {assistantLoading && (
+                <div className="flex items-start gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#10B981] text-white">
+                    <Bot size={16} />
+                  </span>
+                  <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-xs border border-[#E2E8F0] bg-white px-4 py-3 text-xs text-[#64748B]">
+                    <RotateCw className="animate-spin text-[#10B981]" size={14} />
+                    <span>Analyzing disaster knowledge graph...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Suggestion Chips (shown when 1 message) */}
+              {assistantMessages.length === 1 && (
+                <div className="space-y-2 pt-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                    Suggested Admin Queries
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      "What is the heatwave risk in Erode today?",
+                      "Heatwave response protocol for schools",
+                      "How to issue emergency heat alerts?",
+                      "72-Hour Disaster Go-Bag Checklist",
+                    ].map((label) => (
+                      <button
+                        key={label}
+                        type="button"
+                        className="flex items-center gap-2 rounded-2xl border border-[#CBD5E1] bg-white p-3 text-left text-xs font-semibold text-[#334155] hover:border-[#10B981] hover:text-[#0F172A] hover:bg-[#ECFDF5]/50 transition shadow-2xs"
+                        onClick={() => handleAssistantSend(label)}
+                      >
+                        <Sparkles className="text-[#10B981] shrink-0" size={14} />
+                        <span>{label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div ref={assistantScrollRef} />
+            </div>
+
+            {/* Modal Input Bar */}
+            <div className="p-4 bg-white border-t border-[#E2E8F0]">
+              <form
+                className="flex items-center gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleAssistantSend(assistantInput);
+                }}
+              >
+                <input
+                  type="text"
+                  className="flex-1 rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] px-4 py-3 text-xs font-medium text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#10B981] focus:bg-white focus:ring-2 focus:ring-[#10B981]/20 focus:outline-none transition"
+                  placeholder="Ask Admin AI Assistant about heatwave safety or emergency protocols..."
+                  value={assistantInput}
+                  onChange={(e) => setAssistantInput(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  disabled={!assistantInput.trim() || assistantLoading}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#10B981] text-white hover:bg-[#059669] disabled:opacity-50 transition shadow-2xs"
+                >
+                  <Send size={16} />
+                </button>
+              </form>
             </div>
           </div>
         </div>

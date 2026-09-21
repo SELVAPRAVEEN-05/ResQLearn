@@ -38,8 +38,33 @@ export default function LoginPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("reset") === "success") {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reset") === "success") {
       setToast({ type: "success", message: "Password reset successfully. You can now sign in." });
+    }
+    const googleErr = params.get("google");
+    if (googleErr) {
+      if (googleErr === "invalid") {
+        setToast({
+          type: "error",
+          message: "Google OAuth session state invalid or expired. Please try signing in again.",
+        });
+      } else if (googleErr === "failed" || googleErr === "verification_failed") {
+        setToast({
+          type: "error",
+          message: "Google authentication failed. Please try again.",
+        });
+      } else if (googleErr === "inactive") {
+        setToast({
+          type: "error",
+          message: "Your account is inactive. Please contact administration.",
+        });
+      } else if (googleErr === "unavailable") {
+        setToast({
+          type: "error",
+          message: "Google OAuth is currently unavailable. Please check server configuration.",
+        });
+      }
     }
   }, []);
 

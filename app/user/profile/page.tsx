@@ -137,6 +137,7 @@ export default function ProfilePage() {
                 alt="Profile"
                 className="h-full w-full object-cover"
                 src={profile.avatar}
+                referrerPolicy="no-referrer"
               />
             ) : (
               <Users className="text-[#9CA3AF]" size={32} />

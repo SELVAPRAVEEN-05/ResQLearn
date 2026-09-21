@@ -125,7 +125,7 @@ export default function ManageUsersPage() {
                     <p className="text-sm font-bold text-[#0F172A]">
                       {user.name}
                     </p>
-                    <p className="text-xs text-[#64748B]">{user.email}</p>
+                    <p className="text-xs text-[#64748B] truncate max-w-[170px] sm:max-w-none">{user.email}</p>
                   </div>
                 </div>
                 <span
