@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     icon: "/images/image.png",
     apple: "/images/app_logo.png",
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "google8775e75da767a65c",
+  },
   robots: {
     index: true,
     follow: true,
