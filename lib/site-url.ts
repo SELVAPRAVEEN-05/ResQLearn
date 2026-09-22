@@ -18,5 +18,5 @@ export function getSiteBaseUrl(): string {
     return url.startsWith("http") ? url : `https://${url}`;
   }
 
-  return "https://resqlearn.vercel.app";
+  return "https://res-q-learn.vercel.app";
 }
